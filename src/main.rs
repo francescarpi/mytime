@@ -8,18 +8,18 @@ use mytime::show::Show;
 fn main() {
     let config = Config::init();
     let cli = Cli::parse();
+    let show = Show::new(&config);
 
     match &cli.command {
         Commands::Start(start_options) => {
-            // TODO: Comprobar si existeix una tasca prèvia, per què s'hauria de tancar!
-            // TODO: Mostrar la taula
-            Start::task(config, start_options.desc.clone());
+            Start::task(&config, start_options.desc.clone());
+            show.today();
         },
         Commands::Stop => {
-            Stop::active(config);
+            Stop::active(&config);
+            show.today();
         },
         Commands::Show(show_options) => {
-            let show = Show::new(config);
             match show_options.range {
                 ShowRange::Today => show.today(),
                 ShowRange::Week => show.week(),
