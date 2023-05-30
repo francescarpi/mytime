@@ -15,36 +15,36 @@ impl<'a> Show<'a> {
     }
 
     pub fn today(&self) {
-        println!("\n📅 Today");
-
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
+        let working_time = self.working_time(&where_clause);
 
-        self.perform(&where_clause, true);
+        println!("\n📅 Today ({})", format_seconds(working_time));
+
+        self.print_tasks_table(&where_clause, true);
+        self.print_summary_table(&where_clause);
     }
 
     pub fn week(&self) {
-        println!("\n📅 Week");
-
         let week = self.config.now.format("%V").to_string();
         let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
+        let working_time = self.working_time(&where_clause);
 
-        self.perform(&where_clause, false);
+        println!("\n📅 Week ({})", format_seconds(working_time));
+
+        self.print_tasks_table(&where_clause, false);
+        self.print_summary_table(&where_clause);
     }
 
     pub fn month(&self) {
-        println!("\n📅 Month");
-
         let month = self.config.now.format("%Y-%m").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
+        let working_time = self.working_time(&where_clause);
 
-        self.perform(&where_clause, false);
-    }
+        println!("\n📅 Month ({})", format_seconds(working_time));
 
-    fn perform(&self, where_clause: &str, show_only_time: bool) {
-        self.print_tasks_table(&where_clause, show_only_time);
+        self.print_tasks_table(&where_clause, false);
         self.print_summary_table(&where_clause);
-        self.print_working_time(&where_clause);
     }
 
     fn get_tasks_list(&self, where_clause: &str) -> Vec<Result<Task>> {
@@ -138,15 +138,13 @@ impl<'a> Show<'a> {
         println!("{table}");
     }
 
-    pub fn print_working_time(&self, where_clause: &str) {
+    pub fn working_time(&self, where_clause: &str) -> i64 {
         let query = format!(
             "SELECT SUM(duration) AS duration FROM tasks {}",
             &where_clause
         );
         let mut stmt = self.config.conn.prepare(&query).unwrap();
-        let duration: i64 = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap_or(0);
-
-        println!("\n⏱️ Total working: {}\n", format_seconds(duration));
+        stmt.query_row([], |row| Ok(row.get(0)?)).unwrap_or(0)
     }
 
     fn create_new_table(&self, headers: Vec<Cell>) -> Table {
