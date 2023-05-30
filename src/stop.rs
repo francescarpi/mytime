@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::task::Task;
+use crate::utils::display::{error, success};
 use crate::utils::formatters::format_seconds;
 use rusqlite::Result;
 
@@ -9,7 +10,6 @@ pub struct Stop<'a> {
 }
 
 impl<'a> Stop<'a> {
-
     pub fn active(config: &'a Config) -> Self {
         match Self::active_task(&config) {
             Ok(mut task) => {
@@ -19,10 +19,11 @@ impl<'a> Stop<'a> {
                 println!("\nTask ID: {}", task.id);
                 println!("Description: {}", task.desc);
                 println!("Duration: {}", format_seconds(task.duration));
-                println!("✅ Stopped!\n");
+
+                success("Stopped!".to_string());
             }
             Err(_) => {
-                println!("\n‼️ There is not any active task!\n");
+                error("There is not any active task!".to_string());
             }
         };
         Self { config: &config }

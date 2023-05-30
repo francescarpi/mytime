@@ -1,6 +1,7 @@
-use crate::task::Task;
 use crate::config::Config;
 use crate::start::Start;
+use crate::task::Task;
+use crate::utils::display::error;
 use rusqlite::Result;
 
 pub struct Reopen {}
@@ -10,15 +11,17 @@ impl Reopen {
         match Self::get_task(&config, id) {
             Ok(task) => {
                 Start::task(&config, task.desc);
-            },
+            }
             Err(_) => {
-                println!("\n‼️ There is not any task with this ID!\n");
+                error("There is not any task with this ID!".to_string());
             }
         }
     }
 
     fn get_task(config: &Config, id: i64) -> Result<Task> {
-        let mut stmt = config.conn.prepare("SELECT * FROM tasks WHERE id = ? AND end_at IS NOT NULL")?;
+        let mut stmt = config
+            .conn
+            .prepare("SELECT * FROM tasks WHERE id = ? AND end_at IS NOT NULL")?;
         stmt.query_row([id], |row| {
             Ok(Task {
                 id: row.get(0)?,

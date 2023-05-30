@@ -15,3 +15,13 @@ pub mod formatters {
             .to_string()
     }
 }
+
+pub mod display {
+    pub fn success(msg: String) {
+        println!("\n✅ {msg}\n");
+    }
+
+    pub fn error(msg: String) {
+        println!("\n‼️ {msg}\n");
+    }
+}

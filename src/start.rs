@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::utils::display::{error, success};
 
 #[allow(dead_code)]
 pub struct Start<'a> {
@@ -8,7 +9,7 @@ pub struct Start<'a> {
 impl<'a> Start<'a> {
     pub fn task(config: &'a Config, desc: String) -> Self {
         if Self::exist_active_task(&config) {
-            println!("\n‼️ There is another active task. You have to stop it before.\n");
+            error("There is another active task. You have to stop it before.".to_string());
         } else {
             config
                 .conn
@@ -17,7 +18,7 @@ impl<'a> Start<'a> {
                     [desc.clone(), config.now.to_rfc3339()],
                 )
                 .unwrap();
-            println!("\n✅ Task \"{}\" added!\n", desc);
+            success(format!("Task \"{}\" added!", desc));
         }
         Self { config: &config }
     }

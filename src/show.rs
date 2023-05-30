@@ -17,8 +17,10 @@ impl<'a> Show<'a> {
 
     pub fn today(&self) {
         println!("\n📅 Today");
+
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
+
         self.render_table(&where_clause);
         self.summary(&where_clause);
         self.total_time(&where_clause);
@@ -26,8 +28,10 @@ impl<'a> Show<'a> {
 
     pub fn week(&self) {
         println!("\n📅 Week");
+
         let week = self.config.now.format("%V").to_string();
         let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
+
         self.render_table(&where_clause);
         self.summary(&where_clause);
         self.total_time(&where_clause);
@@ -35,8 +39,10 @@ impl<'a> Show<'a> {
 
     pub fn month(&self) {
         println!("\n📅 Month");
+
         let month = self.config.now.format("%Y-%m").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
+
         self.render_table(&where_clause);
         self.summary(&where_clause);
         self.total_time(&where_clause);
@@ -128,7 +134,7 @@ impl<'a> Show<'a> {
         let mut stmt = self.config.conn.prepare(&query).unwrap();
         let duration: i64 = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap();
 
-        println!("\n⏱️ Total working time: {}\n", format_seconds(duration));
+        println!("\n⏱️ Total working: {}\n", format_seconds(duration));
     }
 
     fn table(&self, headers: Vec<Cell>) -> Table {
