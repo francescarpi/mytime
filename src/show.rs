@@ -19,16 +19,23 @@ impl<'a> Show<'a> {
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
         self.render_table(&where_clause);
+        self.summary(&where_clause);
     }
 
     pub fn week(&self) {
         println!("📅 Week");
-        self.render_table("");
+        let week = self.config.now.format("%V").to_string();
+        let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
+        self.render_table(&where_clause);
+        self.summary(&where_clause);
     }
 
     pub fn month(&self) {
         println!("📅 Month");
-        self.render_table("");
+        let month = self.config.now.format("%Y-%m").to_string();
+        let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
+        self.render_table(&where_clause);
+        self.summary(&where_clause);
     }
 
     fn tasks(&self, where_clause: &str) -> Vec<Task> {
@@ -93,5 +100,47 @@ impl<'a> Show<'a> {
         }
 
         println!("{table}");
+    }
+
+    pub fn summary(&self, where_clause: &str) {
+        let query = format!("SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC", &where_clause);
+        let mut stmt = self.config.conn.prepare(&query).unwrap();
+
+        #[derive(Debug)]
+        struct AggregatedTask {
+            desc: String,
+            duration: i64
+        }
+
+        let rows = stmt
+            .query_map([], |row| {
+                Ok(AggregatedTask {
+                    desc: row.get(0)?,
+                    duration: row.get(1)?,
+                })
+            })
+            .unwrap();
+
+        let mut table = Table::new();
+        table
+            .load_preset(UTF8_FULL)
+            .apply_modifier(UTF8_ROUND_CORNERS)
+            .set_content_arrangement(ContentArrangement::Dynamic)
+            .set_width(80)
+            .set_header(vec![
+                Cell::new("Desc").add_attribute(Attribute::Bold),
+                Cell::new("Duration").add_attribute(Attribute::Bold),
+            ]);
+
+        for row in rows {
+            let row = row.unwrap();
+            table.add_row(vec![
+                Cell::new(row.desc),
+                Cell::new(format_seconds(row.duration)),
+            ]);
+        }
+
+        println!("{table}");
+
     }
 }
