@@ -14,6 +14,14 @@ pub mod formatters {
             .format("%Y-%m-%d %H:%M")
             .to_string()
     }
+
+    pub fn format_time(date_time: String) -> String {
+        DateTime::parse_from_rfc3339(&date_time)
+            .unwrap()
+            .with_timezone(&Local)
+            .format("%H:%M")
+            .to_string()
+    }
 }
 
 pub mod display {

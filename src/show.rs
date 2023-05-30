@@ -1,7 +1,6 @@
 use crate::config::Config;
 use crate::task::Task;
-use crate::utils::formatters::{format_date, format_seconds};
-use comfy_table::modifiers::UTF8_ROUND_CORNERS;
+use crate::utils::formatters::{format_date, format_seconds, format_time};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
 use rusqlite::Result;
@@ -21,7 +20,7 @@ impl<'a> Show<'a> {
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
 
-        self.perform(&where_clause);
+        self.perform(&where_clause, true);
     }
 
     pub fn week(&self) {
@@ -30,7 +29,7 @@ impl<'a> Show<'a> {
         let week = self.config.now.format("%V").to_string();
         let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
 
-        self.perform(&where_clause);
+        self.perform(&where_clause, false);
     }
 
     pub fn month(&self) {
@@ -39,11 +38,11 @@ impl<'a> Show<'a> {
         let month = self.config.now.format("%Y-%m").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
 
-        self.perform(&where_clause);
+        self.perform(&where_clause, false);
     }
 
-    fn perform(&self, where_clause: &str) {
-        self.print_tasks_table(&where_clause);
+    fn perform(&self, where_clause: &str, show_only_time: bool) {
+        self.print_tasks_table(&where_clause, show_only_time);
         self.print_summary_table(&where_clause);
         self.print_working_time(&where_clause);
     }
@@ -65,14 +64,26 @@ impl<'a> Show<'a> {
         .collect::<Vec<Result<Task>>>()
     }
 
-    fn print_tasks_table(&self, where_clause: &str) {
+    fn print_tasks_table(&self, where_clause: &str, show_only_time: bool) {
         let mut table = self.create_new_table(self.tasks_table_headers());
 
         for task in self.get_tasks_list(&where_clause) {
             let mut task = task.unwrap();
 
+            let start_at = if show_only_time {
+                format_time(task.start_at.clone())
+            } else {
+                format_date(task.start_at.clone())
+            };
+
             let end_at = match task.end_at {
-                Some(date) => format_date(date),
+                Some(date) => {
+                    if show_only_time {
+                        format_time(date)
+                    } else {
+                        format_date(date)
+                    }
+                }
                 None => {
                     task.update_duration(&self.config);
                     "🏃".to_string()
@@ -82,7 +93,7 @@ impl<'a> Show<'a> {
             table.add_row(vec![
                 Cell::new(task.id),
                 Cell::new(task.desc),
-                Cell::new(format_date(task.start_at)),
+                Cell::new(start_at),
                 Cell::new(end_at).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(task.duration)).set_alignment(CellAlignment::Right),
             ]);
@@ -142,7 +153,6 @@ impl<'a> Show<'a> {
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
-            .apply_modifier(UTF8_ROUND_CORNERS)
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_width(80)
             .set_header(headers);
