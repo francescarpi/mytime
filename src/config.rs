@@ -1,22 +1,18 @@
 use chrono::{DateTime, Utc};
+use ini::ini;
 use rusqlite::Connection;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 #[derive(Debug)]
-#[allow(dead_code)]
 pub struct Config {
-    share_path: String,
-    db_path: String,
     pub conn: Connection,
     pub now: DateTime<Utc>,
 }
 
 impl Config {
     pub fn init() -> Self {
-        let home = env::var("HOME").unwrap();
-
-        let share_path = Path::new(&home).join(".local").join("share").join("mytime");
+        let share_path = Self::share_path();
         let db_path = Path::new(&share_path).join("mytime.db");
 
         let share_path = share_path.to_str().unwrap().to_string();
@@ -26,10 +22,22 @@ impl Config {
         let conn = Self::create_db_if_not_exist(db_path.clone());
 
         Self {
-            share_path,
-            db_path,
             conn,
             now: Utc::now(),
+        }
+    }
+
+    fn share_path() -> PathBuf {
+        let home = env::var("HOME").unwrap();
+        let ini_file_path = Path::new(&home).join(".mytime");
+        let ini_file = ini!(safe ini_file_path.to_str().unwrap());
+
+        match ini_file {
+            Ok(ini_file) => {
+                let share_path = String::from(ini_file["general"]["db_folder"].clone().unwrap());
+                Path::new(&share_path).to_path_buf()
+            },
+            Err(_) => Path::new(&home).join(".local").join("share").join("mytime"),
         }
     }
 
