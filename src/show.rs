@@ -62,9 +62,8 @@ impl<'a> Show<'a> {
     }
 
     fn render_table(&self, where_clause: &str) {
-        let mut table = Table::new();
-
-        let headers = vec![
+        let mut table = self.table();
+        table.set_header(vec![
             Cell::new("#")
                 .add_attribute(Attribute::Bold)
                 .fg(Color::Green),
@@ -72,14 +71,7 @@ impl<'a> Show<'a> {
             Cell::new("Start").add_attribute(Attribute::Bold),
             Cell::new("End").add_attribute(Attribute::Bold),
             Cell::new("Duration").add_attribute(Attribute::Bold),
-        ];
-
-        table
-            .load_preset(UTF8_FULL)
-            .apply_modifier(UTF8_ROUND_CORNERS)
-            .set_content_arrangement(ContentArrangement::Dynamic)
-            .set_width(80)
-            .set_header(headers);
+        ]);
 
         let tasks = self.tasks(&where_clause);
         for mut task in tasks {
@@ -103,13 +95,16 @@ impl<'a> Show<'a> {
     }
 
     pub fn summary(&self, where_clause: &str) {
-        let query = format!("SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC", &where_clause);
+        let query = format!(
+            "SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC",
+            &where_clause
+        );
         let mut stmt = self.config.conn.prepare(&query).unwrap();
 
         #[derive(Debug)]
         struct AggregatedTask {
             desc: String,
-            duration: i64
+            duration: i64,
         }
 
         let rows = stmt
@@ -121,16 +116,11 @@ impl<'a> Show<'a> {
             })
             .unwrap();
 
-        let mut table = Table::new();
-        table
-            .load_preset(UTF8_FULL)
-            .apply_modifier(UTF8_ROUND_CORNERS)
-            .set_content_arrangement(ContentArrangement::Dynamic)
-            .set_width(80)
-            .set_header(vec![
-                Cell::new("Desc").add_attribute(Attribute::Bold),
-                Cell::new("Duration").add_attribute(Attribute::Bold),
-            ]);
+        let mut table = self.table();
+        table.set_header(vec![
+            Cell::new("Desc").add_attribute(Attribute::Bold),
+            Cell::new("Duration").add_attribute(Attribute::Bold),
+        ]);
 
         for row in rows {
             let row = row.unwrap();
@@ -141,6 +131,15 @@ impl<'a> Show<'a> {
         }
 
         println!("{table}");
+    }
 
+    fn table(&self) -> Table {
+        let mut table = Table::new();
+        table
+            .load_preset(UTF8_FULL)
+            .apply_modifier(UTF8_ROUND_CORNERS)
+            .set_content_arrangement(ContentArrangement::Dynamic)
+            .set_width(80);
+        table
     }
 }
