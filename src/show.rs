@@ -4,6 +4,7 @@ use crate::utils::formatters::{format_date, format_seconds};
 use comfy_table::modifiers::UTF8_ROUND_CORNERS;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
+use rusqlite::Result;
 
 pub struct Show<'a> {
     config: &'a Config,
@@ -38,11 +39,11 @@ impl<'a> Show<'a> {
         self.summary(&where_clause);
     }
 
-    fn tasks(&self, where_clause: &str) -> Vec<Task> {
+    fn tasks(&self, where_clause: &str) -> Vec<Result<Task>> {
         let query = format!("SELECT * FROM tasks {} ORDER BY id DESC", &where_clause);
         let mut stmt = self.config.conn.prepare(&query).unwrap();
 
-        let rows = stmt
+        stmt
             .query_map([], |row| {
                 Ok(Task {
                     id: row.get(0)?,
@@ -52,20 +53,16 @@ impl<'a> Show<'a> {
                     duration: row.get(4)?,
                 })
             })
-            .unwrap();
-
-        let mut tasks: Vec<Task> = Vec::new();
-        for row in rows {
-            tasks.push(row.unwrap());
-        }
-        tasks
+            .unwrap()
+            .collect::<Vec<Result<Task>>>()
     }
 
     fn render_table(&self, where_clause: &str) {
         let mut table = self.table(self.table_headers());
 
         let tasks = self.tasks(&where_clause);
-        for mut task in tasks {
+        for task in tasks {
+            let mut task = task.unwrap();
             let end_at = match task.end_at {
                 Some(date) => format_date(date),
                 None => {
