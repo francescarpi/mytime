@@ -16,45 +16,47 @@ impl<'a> Show<'a> {
     }
 
     pub fn today(&self) {
-        println!("📅 Today");
+        println!("\n📅 Today");
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
         self.render_table(&where_clause);
         self.summary(&where_clause);
+        self.total_time(&where_clause);
     }
 
     pub fn week(&self) {
-        println!("📅 Week");
+        println!("\n📅 Week");
         let week = self.config.now.format("%V").to_string();
         let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
         self.render_table(&where_clause);
         self.summary(&where_clause);
+        self.total_time(&where_clause);
     }
 
     pub fn month(&self) {
-        println!("📅 Month");
+        println!("\n📅 Month");
         let month = self.config.now.format("%Y-%m").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
         self.render_table(&where_clause);
         self.summary(&where_clause);
+        self.total_time(&where_clause);
     }
 
     fn tasks(&self, where_clause: &str) -> Vec<Result<Task>> {
         let query = format!("SELECT * FROM tasks {} ORDER BY id DESC", &where_clause);
         let mut stmt = self.config.conn.prepare(&query).unwrap();
 
-        stmt
-            .query_map([], |row| {
-                Ok(Task {
-                    id: row.get(0)?,
-                    desc: row.get(1)?,
-                    start_at: row.get(2)?,
-                    end_at: row.get(3)?,
-                    duration: row.get(4)?,
-                })
+        stmt.query_map([], |row| {
+            Ok(Task {
+                id: row.get(0)?,
+                desc: row.get(1)?,
+                start_at: row.get(2)?,
+                end_at: row.get(3)?,
+                duration: row.get(4)?,
             })
-            .unwrap()
-            .collect::<Vec<Result<Task>>>()
+        })
+        .unwrap()
+        .collect::<Vec<Result<Task>>>()
     }
 
     fn render_table(&self, where_clause: &str) {
@@ -83,6 +85,7 @@ impl<'a> Show<'a> {
     }
 
     pub fn summary(&self, where_clause: &str) {
+        println!("\n📚 Group by description");
         let query = format!(
             "SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC",
             &where_clause
@@ -115,6 +118,17 @@ impl<'a> Show<'a> {
         }
 
         println!("{table}");
+    }
+
+    pub fn total_time(&self, where_clause: &str) {
+        let query = format!(
+            "SELECT SUM(duration) AS duration FROM tasks {}",
+            &where_clause
+        );
+        let mut stmt = self.config.conn.prepare(&query).unwrap();
+        let duration: i64 = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap();
+
+        println!("\n⏱️ Total working time: {}\n", format_seconds(duration));
     }
 
     fn table(&self, headers: Vec<Cell>) -> Table {
