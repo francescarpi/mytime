@@ -4,6 +4,8 @@ use mytime::config::Config;
 use mytime::start::Start;
 use mytime::stop::Stop;
 use mytime::show::Show;
+use mytime::modify::Modify;
+use mytime::reopen::Reopen;
 
 fn main() {
     let config = Config::init();
@@ -26,5 +28,13 @@ fn main() {
                 ShowRange::Month => show.month(),
             }
         },
+        Commands::Modify(modify_options) => {
+            Modify::task(&config, modify_options.id, modify_options.desc.clone());
+            show.today();
+        },
+        Commands::Reopen(reopen_options) =>{
+            Reopen::task(&config, reopen_options.id);
+            show.today();
+        }
     }
 }

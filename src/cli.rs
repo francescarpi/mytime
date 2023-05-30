@@ -18,6 +18,12 @@ pub enum Commands {
 
     /// Display the status table
     Show(ShowOptions),
+
+    /// Allow modify a task description
+    Modify(ModifyOptions),
+
+    /// Reopen closed task
+    Reopen(ReopenOptions),
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -37,4 +43,19 @@ pub struct StartOptions {
 pub struct ShowOptions {
     #[arg(short, long, value_enum, default_value_t=ShowRange::Today)]
     pub range: ShowRange,
+}
+
+#[derive(Args, Debug)]
+pub struct ModifyOptions {
+    #[arg(short, long)]
+    pub desc: String,
+
+    #[arg(short, long)]
+    pub id: i64,
+}
+
+#[derive(Args, Debug)]
+pub struct ReopenOptions {
+    #[arg(short, long)]
+    pub id: i64,
 }

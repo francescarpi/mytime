@@ -16,13 +16,13 @@ impl<'a> Stop<'a> {
                 task.update_duration(&config);
                 task.stop(&config);
 
-                println!("Task ID: {}", task.id);
+                println!("\nTask ID: {}", task.id);
                 println!("Description: {}", task.desc);
                 println!("Duration: {}", format_seconds(task.duration));
                 println!("✅ Stopped!\n");
             }
             Err(_) => {
-                println!("‼️ There is not any active task!\n");
+                println!("\n‼️ There is not any active task!\n");
             }
         };
         Self { config: &config }

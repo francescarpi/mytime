@@ -8,7 +8,7 @@ pub struct Start<'a> {
 impl<'a> Start<'a> {
     pub fn task(config: &'a Config, desc: String) -> Self {
         if Self::exist_active_task(&config) {
-            println!("‼️ There is another active task. You have to stop it before.\n");
+            println!("\n‼️ There is another active task. You have to stop it before.\n");
         } else {
             config
                 .conn
@@ -17,7 +17,7 @@ impl<'a> Start<'a> {
                     [desc.clone(), config.now.to_rfc3339()],
                 )
                 .unwrap();
-            println!("✅ Task \"{}\" added!\n", desc);
+            println!("\n✅ Task \"{}\" added!\n", desc);
         }
         Self { config: &config }
     }

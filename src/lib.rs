@@ -5,3 +5,5 @@ pub mod stop;
 pub mod utils;
 pub mod task;
 pub mod show;
+pub mod modify;
+pub mod reopen;
