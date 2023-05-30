@@ -133,7 +133,7 @@ impl<'a> Show<'a> {
             &where_clause
         );
         let mut stmt = self.config.conn.prepare(&query).unwrap();
-        let duration: i64 = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap();
+        let duration: i64 = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap_or(0);
 
         println!("\n⏱️ Total working: {}\n", format_seconds(duration));
     }

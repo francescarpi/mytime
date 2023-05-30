@@ -49,3 +49,18 @@ mytime reopen -i 12
 ## Database
 
 The first time `mytime` is executed, it creates the folder `$HOME/.local/share/mytime`. It contains a `sqlite3` database (`mytime.db`) to store data.
+
+## Configure
+
+You can use your own configuration (ini) file and define where store the database.
+
+```bash
+touch $HOME/.mytime
+```
+
+```ini
+[general]
+db_folder = /Users/foo/Library/CloudStorage/Dropbox/mytime
+
+```
+
