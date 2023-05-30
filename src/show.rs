@@ -62,16 +62,7 @@ impl<'a> Show<'a> {
     }
 
     fn render_table(&self, where_clause: &str) {
-        let mut table = self.table();
-        table.set_header(vec![
-            Cell::new("#")
-                .add_attribute(Attribute::Bold)
-                .fg(Color::Green),
-            Cell::new("Desc").add_attribute(Attribute::Bold),
-            Cell::new("Start").add_attribute(Attribute::Bold),
-            Cell::new("End").add_attribute(Attribute::Bold),
-            Cell::new("Duration").add_attribute(Attribute::Bold),
-        ]);
+        let mut table = self.table(self.table_headers());
 
         let tasks = self.tasks(&where_clause);
         for mut task in tasks {
@@ -116,11 +107,7 @@ impl<'a> Show<'a> {
             })
             .unwrap();
 
-        let mut table = self.table();
-        table.set_header(vec![
-            Cell::new("Desc").add_attribute(Attribute::Bold),
-            Cell::new("Duration").add_attribute(Attribute::Bold),
-        ]);
+        let mut table = self.table(self.summary_headers());
 
         for row in rows {
             let row = row.unwrap();
@@ -133,13 +120,33 @@ impl<'a> Show<'a> {
         println!("{table}");
     }
 
-    fn table(&self) -> Table {
+    fn table(&self, headers: Vec<Cell>) -> Table {
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
             .apply_modifier(UTF8_ROUND_CORNERS)
             .set_content_arrangement(ContentArrangement::Dynamic)
-            .set_width(80);
+            .set_width(80)
+            .set_header(headers);
         table
+    }
+
+    fn table_headers(&self) -> Vec<Cell> {
+        vec![
+            Cell::new("#")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Green),
+            Cell::new("Desc").add_attribute(Attribute::Bold),
+            Cell::new("Start").add_attribute(Attribute::Bold),
+            Cell::new("End").add_attribute(Attribute::Bold),
+            Cell::new("Duration").add_attribute(Attribute::Bold),
+        ]
+    }
+
+    fn summary_headers(&self) -> Vec<Cell> {
+        vec![
+            Cell::new("Desc").add_attribute(Attribute::Bold),
+            Cell::new("Duration").add_attribute(Attribute::Bold),
+        ]
     }
 }
