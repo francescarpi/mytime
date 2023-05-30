@@ -21,9 +21,7 @@ impl<'a> Show<'a> {
         let today = self.config.now.format("%Y-%m-%d").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
 
-        self.render_table(&where_clause);
-        self.summary(&where_clause);
-        self.total_time(&where_clause);
+        self.perform(&where_clause);
     }
 
     pub fn week(&self) {
@@ -32,9 +30,7 @@ impl<'a> Show<'a> {
         let week = self.config.now.format("%V").to_string();
         let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
 
-        self.render_table(&where_clause);
-        self.summary(&where_clause);
-        self.total_time(&where_clause);
+        self.perform(&where_clause);
     }
 
     pub fn month(&self) {
@@ -43,12 +39,16 @@ impl<'a> Show<'a> {
         let month = self.config.now.format("%Y-%m").to_string();
         let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
 
-        self.render_table(&where_clause);
-        self.summary(&where_clause);
-        self.total_time(&where_clause);
+        self.perform(&where_clause);
     }
 
-    fn tasks(&self, where_clause: &str) -> Vec<Result<Task>> {
+    fn perform(&self, where_clause: &str) {
+        self.print_tasks_table(&where_clause);
+        self.print_summary_table(&where_clause);
+        self.print_working_time(&where_clause);
+    }
+
+    fn get_tasks_list(&self, where_clause: &str) -> Vec<Result<Task>> {
         let query = format!("SELECT * FROM tasks {} ORDER BY id DESC", &where_clause);
         let mut stmt = self.config.conn.prepare(&query).unwrap();
 
@@ -65,12 +65,12 @@ impl<'a> Show<'a> {
         .collect::<Vec<Result<Task>>>()
     }
 
-    fn render_table(&self, where_clause: &str) {
-        let mut table = self.table(self.table_headers());
+    fn print_tasks_table(&self, where_clause: &str) {
+        let mut table = self.create_new_table(self.tasks_table_headers());
 
-        let tasks = self.tasks(&where_clause);
-        for task in tasks {
+        for task in self.get_tasks_list(&where_clause) {
             let mut task = task.unwrap();
+
             let end_at = match task.end_at {
                 Some(date) => format_date(date),
                 None => {
@@ -78,6 +78,7 @@ impl<'a> Show<'a> {
                     "🏃".to_string()
                 }
             };
+
             table.add_row(vec![
                 Cell::new(task.id),
                 Cell::new(task.desc),
@@ -90,7 +91,7 @@ impl<'a> Show<'a> {
         println!("{table}");
     }
 
-    pub fn summary(&self, where_clause: &str) {
+    pub fn print_summary_table(&self, where_clause: &str) {
         println!("\n📚 Group by description");
         let query = format!(
             "SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC",
@@ -113,7 +114,7 @@ impl<'a> Show<'a> {
             })
             .unwrap();
 
-        let mut table = self.table(self.summary_headers());
+        let mut table = self.create_new_table(self.summary_table_headers());
 
         for row in rows {
             let row = row.unwrap();
@@ -126,7 +127,7 @@ impl<'a> Show<'a> {
         println!("{table}");
     }
 
-    pub fn total_time(&self, where_clause: &str) {
+    pub fn print_working_time(&self, where_clause: &str) {
         let query = format!(
             "SELECT SUM(duration) AS duration FROM tasks {}",
             &where_clause
@@ -137,7 +138,7 @@ impl<'a> Show<'a> {
         println!("\n⏱️ Total working: {}\n", format_seconds(duration));
     }
 
-    fn table(&self, headers: Vec<Cell>) -> Table {
+    fn create_new_table(&self, headers: Vec<Cell>) -> Table {
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
@@ -148,7 +149,7 @@ impl<'a> Show<'a> {
         table
     }
 
-    fn table_headers(&self) -> Vec<Cell> {
+    fn tasks_table_headers(&self) -> Vec<Cell> {
         vec![
             Cell::new("#")
                 .add_attribute(Attribute::Bold)
@@ -160,7 +161,7 @@ impl<'a> Show<'a> {
         ]
     }
 
-    fn summary_headers(&self) -> Vec<Cell> {
+    fn summary_table_headers(&self) -> Vec<Cell> {
         vec![
             Cell::new("Desc").add_attribute(Attribute::Bold),
             Cell::new("Duration").add_attribute(Attribute::Bold),
