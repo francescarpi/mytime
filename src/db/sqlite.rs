@@ -1,10 +1,10 @@
 use std::fs;
 use std::path::PathBuf;
 
-use crate::config::Config;
+use crate::core::config::Config;
 use crate::db::Db;
-use crate::errors::Error;
-use crate::task::Task;
+use crate::core::errors::Error;
+use crate::core::task::Task;
 use chrono::{DateTime, Utc};
 use rusqlite::{Connection, Statement};
 

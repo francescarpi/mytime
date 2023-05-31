@@ -1,6 +1,6 @@
 use crate::db::Db;
-use crate::utils::display::{error, success};
-use crate::utils::formatters::format_seconds;
+use crate::core::utils::display::{error, success};
+use crate::core::utils::formatters::format_seconds;
 
 pub struct Stop {}
 

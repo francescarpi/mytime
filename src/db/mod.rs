@@ -1,5 +1,5 @@
-use crate::errors::Error;
-use crate::task::Task;
+use crate::core::errors::Error;
+use crate::core::task::Task;
 use chrono::{DateTime, Utc};
 
 pub mod sqlite;

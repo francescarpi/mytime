@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::db::Db;
-use crate::task::Task;
-use crate::utils::formatters::{format_date, format_seconds, format_time};
+use crate::core::task::Task;
+use crate::core::utils::formatters::{format_date, format_seconds, format_time};
 use chrono::{Datelike, Local, Utc};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
