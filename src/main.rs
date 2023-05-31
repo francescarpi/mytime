@@ -6,20 +6,23 @@ use mytime::stop::Stop;
 use mytime::show::Show;
 use mytime::modify::Modify;
 use mytime::reopen::Reopen;
+use mytime::db::sqlite::Sqlite;
 
 fn main() {
-    let config = Config::init();
+    let config = Config::new();
+    let db = Sqlite::new(config);
+
     let cli = Cli::parse();
-    let show = Show::new(&config);
+    let show = Show::new(&db);
 
     match &cli.command {
         Commands::Start(start_options) => {
-            Start::task(&config, start_options.desc.clone());
+            Start::task(&db, start_options.desc.clone());
             show.today();
         },
         Commands::Stop => {
-            Stop::active(&config);
-            show.today();
+            // Stop::active(&config);
+            // show.today();
         },
         Commands::Show(show_options) => {
             match show_options.range {
@@ -29,12 +32,12 @@ fn main() {
             }
         },
         Commands::Modify(modify_options) => {
-            Modify::task(&config, modify_options.id, modify_options.desc.clone());
-            show.today();
+            // Modify::task(&config, modify_options.id, modify_options.desc.clone());
+            // show.today();
         },
         Commands::Reopen(reopen_options) =>{
-            Reopen::task(&config, reopen_options.id);
-            show.today();
+            // Reopen::task(&config, reopen_options.id);
+            // show.today();
         }
     }
 }

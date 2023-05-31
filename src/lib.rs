@@ -7,3 +7,5 @@ pub mod task;
 pub mod show;
 pub mod modify;
 pub mod reopen;
+pub mod errors;
+pub mod db;
