@@ -1,82 +1,62 @@
-use crate::config::Config;
+use std::collections::HashMap;
+
+use crate::db::Db;
 use crate::task::Task;
 use crate::utils::formatters::{format_date, format_seconds, format_time};
+use chrono::{Datelike, Local, Utc};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
-use rusqlite::Result;
 
 pub struct Show<'a> {
-    config: &'a Config,
+    db: &'a dyn Db,
 }
 
 impl<'a> Show<'a> {
-    pub fn new(config: &'a Config) -> Self {
-        Self { config: &config }
+    pub fn new(db: &'a dyn Db) -> Self {
+        Self { db }
     }
 
     pub fn today(&self) {
-        let today = self.config.now.format("%Y-%m-%d").to_string();
-        let where_clause = format!(" WHERE strftime('%Y-%m-%d', start_at) = '{}'", today);
+        let today = Utc::now();
+        let tasks = self.db.day_tasks(today);
 
-        println!("\n📅 Today");
+        println!("\n📅 Today ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&where_clause, true);
-        self.print_summary_table(&where_clause);
-        self.print_working_time(&where_clause);
+        self.print_tasks_table(&tasks, true);
+        self.print_summary_table(&tasks);
     }
 
     pub fn week(&self) {
-        let week = self.config.now.format("%V").to_string();
-        let where_clause = format!(" WHERE strftime('%W', start_at) = '{}'", week);
+        let week = Local::now().iso_week().week();
+        let tasks = self.db.week_tasks(week);
 
-        println!("\n📅 Week");
+        println!("\n📅 Week ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&where_clause, false);
-        self.print_summary_table(&where_clause);
-        self.print_working_time(&where_clause);
+        self.print_tasks_table(&tasks, false);
+        self.print_summary_table(&tasks);
     }
 
     pub fn month(&self) {
-        let month = self.config.now.format("%Y-%m").to_string();
-        let where_clause = format!(" WHERE strftime('%Y-%m', start_at) = '{}'", month);
+        let today = Local::now();
+        let tasks = self.db.month_tasks(today.month(), today.year());
 
-        println!("\n📅 Month");
+        println!("\n📅 Month ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&where_clause, false);
-        self.print_summary_table(&where_clause);
-        self.print_working_time(&where_clause);
+        self.print_tasks_table(&tasks, false);
+        self.print_summary_table(&tasks);
     }
 
-    fn get_tasks_list(&self, where_clause: &str) -> Vec<Result<Task>> {
-        let query = format!("SELECT * FROM tasks {} ORDER BY id DESC", &where_clause);
-        let mut stmt = self.config.conn.prepare(&query).unwrap();
-
-        stmt.query_map([], |row| {
-            Ok(Task {
-                id: row.get(0)?,
-                desc: row.get(1)?,
-                start_at: row.get(2)?,
-                end_at: row.get(3)?,
-                duration: row.get(4)?,
-            })
-        })
-        .unwrap()
-        .collect::<Vec<Result<Task>>>()
-    }
-
-    fn print_tasks_table(&self, where_clause: &str, show_only_time: bool) {
+    fn print_tasks_table(&self, tasks: &Vec<Task>, show_only_time: bool) {
         let mut table = self.create_new_table(self.tasks_table_headers());
 
-        for task in self.get_tasks_list(&where_clause) {
-            let mut task = task.unwrap();
-
-            let start_at = if show_only_time {
-                format_time(task.start_at.clone())
+        for task in tasks {
+            let start = if show_only_time {
+                format_time(task.start.clone())
             } else {
-                format_date(task.start_at.clone())
+                format_date(task.start.clone())
             };
 
-            let end_at = match task.end_at {
+            let end = match task.end.clone() {
                 Some(date) => {
                     if show_only_time {
                         format_time(date)
@@ -84,69 +64,45 @@ impl<'a> Show<'a> {
                         format_date(date)
                     }
                 }
-                None => {
-                    task.update_duration(&self.config);
-                    "🏃".to_string()
-                }
+                None => "🏃".to_string(),
             };
 
             table.add_row(vec![
                 Cell::new(task.id),
-                Cell::new(task.desc),
-                Cell::new(start_at),
-                Cell::new(end_at).set_alignment(CellAlignment::Center),
-                Cell::new(format_seconds(task.duration)).set_alignment(CellAlignment::Right),
+                Cell::new(task.desc.clone()),
+                Cell::new(start),
+                Cell::new(end).set_alignment(CellAlignment::Center),
+                Cell::new(format_seconds(task.duration())).set_alignment(CellAlignment::Right),
             ]);
         }
 
         println!("{table}");
     }
 
-    pub fn print_summary_table(&self, where_clause: &str) {
+    pub fn print_summary_table(&self, tasks: &Vec<Task>) {
         println!("\n📚 Group by description");
-        let query = format!(
-            "SELECT desc, SUM(duration) AS duration FROM tasks {} GROUP BY DESC",
-            &where_clause
-        );
-        let mut stmt = self.config.conn.prepare(&query).unwrap();
-
-        #[derive(Debug)]
-        struct AggregatedTask {
-            desc: String,
-            duration: i64,
-        }
-
-        let rows = stmt
-            .query_map([], |row| {
-                Ok(AggregatedTask {
-                    desc: row.get(0)?,
-                    duration: row.get(1)?,
-                })
-            })
-            .unwrap();
 
         let mut table = self.create_new_table(self.summary_table_headers());
+        let mut grouped_tasks: HashMap<String, i64> = HashMap::new();
 
-        for row in rows {
-            let row = row.unwrap();
-            table.add_row(vec![
-                Cell::new(row.desc),
-                Cell::new(format_seconds(row.duration)),
-            ]);
+        for task in tasks {
+            let duration_sum = grouped_tasks.entry(task.desc.clone()).or_insert(0);
+            *duration_sum += task.duration();
+        }
+
+        for (desc, duration) in grouped_tasks {
+            table.add_row(vec![Cell::new(desc), Cell::new(format_seconds(duration))]);
         }
 
         println!("{table}");
     }
 
-    pub fn print_working_time(&self, where_clause: &str) {
-        let query = format!(
-            "SELECT SUM(duration) AS duration FROM tasks {}",
-            &where_clause
-        );
-        let mut stmt = self.config.conn.prepare(&query).unwrap();
-        let duration = stmt.query_row([], |row| Ok(row.get(0)?)).unwrap_or(0);
-
-        println!("\n⏱️ Work time: {}\n", format_seconds(duration));
+    pub fn working_time(&self, tasks: &Vec<Task>) -> i64 {
+        let mut duration = 0;
+        for task in tasks {
+            duration += task.duration();
+        }
+        duration
     }
 
     fn create_new_table(&self, headers: Vec<Cell>) -> Table {
