@@ -80,7 +80,7 @@ impl<'a> Show<'a> {
     }
 
     pub fn print_summary_table(&self, tasks: &Vec<Task>) {
-        println!("\n📚 Group by description");
+        println!("\n📚 Grouped by description");
 
         let mut table = self.create_new_table(self.summary_table_headers());
         let mut grouped_tasks: HashMap<String, i64> = HashMap::new();
