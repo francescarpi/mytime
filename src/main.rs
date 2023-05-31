@@ -4,7 +4,7 @@ pub mod ui;
 pub mod core;
 pub mod db;
 
-use crate::ui::cli::{Commands, ShowRange, Cli};
+use crate::ui::cli::{Commands, ShowPeriod, Cli};
 use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
 use crate::ui::actions;
@@ -25,10 +25,10 @@ fn main() {
             actions::stop::Stop::active(&db);
             show.today();
         }
-        Commands::Show(show_options) => match show_options.range {
-            ShowRange::Today => show.today(),
-            ShowRange::Week => show.week(),
-            ShowRange::Month => show.month(),
+        Commands::Show(show_options) => match show_options.period {
+            ShowPeriod::Today => show.today(),
+            ShowPeriod::Week => show.week(),
+            ShowPeriod::Month => show.month(),
         },
         Commands::Modify(modify_options) => {
             actions::modify::Modify::task(&db, modify_options.id, modify_options.desc.clone());

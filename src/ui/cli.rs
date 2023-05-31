@@ -27,7 +27,7 @@ pub enum Commands {
 }
 
 #[derive(Debug, Clone, ValueEnum)]
-pub enum ShowRange {
+pub enum ShowPeriod {
     Today,
     Week,
     Month,
@@ -41,8 +41,8 @@ pub struct StartOptions {
 
 #[derive(Args, Debug)]
 pub struct ShowOptions {
-    #[arg(short, long, value_enum, default_value_t=ShowRange::Today)]
-    pub range: ShowRange,
+    #[arg(short, long, value_enum, default_value_t=ShowPeriod::Today)]
+    pub period: ShowPeriod,
 }
 
 #[derive(Args, Debug)]
