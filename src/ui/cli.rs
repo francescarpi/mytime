@@ -13,16 +13,16 @@ pub enum Commands {
     /// Start a new task
     Start(StartOptions),
 
-    /// Stop active task
+    /// Stop the active task
     Stop,
 
-    /// Display the status table
+    /// Display the task table
     Show(ShowOptions),
 
-    /// Allow modify a task description
+    /// Modify a task's description
     Modify(ModifyOptions),
 
-    /// Reopen closed task
+    /// Reopen a closed task
     Reopen(ReopenOptions),
 }
 
