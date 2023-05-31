@@ -64,3 +64,25 @@ db_folder = /Users/foo/Library/CloudStorage/Dropbox/mytime
 
 ```
 
+## Compile code
+
+Download the source code:
+
+```
+git clone git@github.com:francescarpi/mytime.git
+```
+
+Run for debug:
+
+```
+cd mytime
+cargo run
+```
+
+Compile for production:
+
+```
+cargo build --release
+```
+
+The binary file will be into the `target` folder.
