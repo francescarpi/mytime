@@ -48,10 +48,10 @@ pub struct ShowOptions {
 #[derive(Args, Debug)]
 pub struct ModifyOptions {
     #[arg(short, long)]
-    pub desc: String,
+    pub id: i64,
 
     #[arg(short, long)]
-    pub id: i64,
+    pub desc: String,
 }
 
 #[derive(Args, Debug)]

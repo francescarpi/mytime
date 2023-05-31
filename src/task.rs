@@ -17,4 +17,8 @@ impl Task {
         };
         end.timestamp() - start.timestamp()
     }
+
+    pub fn is_opened(&self) -> bool {
+        self.end.is_none()
+    }
 }

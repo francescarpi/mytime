@@ -58,7 +58,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn task(&self, id: u32) -> Result<Task, Error> {
+    fn task(&self, id: i64) -> Result<Task, Error> {
         let mut stmt = self
             .conn
             .prepare("SELECT * FROM tasks WHERE id = ?")
@@ -76,7 +76,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn stop_task(&self, id: u32) -> Result<(), Error> {
+    fn stop_task(&self, id: i64) -> Result<Task, Error> {
         match self.task(id) {
             Ok(task) => {
                 let now = Utc::now().to_rfc3339();
@@ -86,7 +86,7 @@ impl Db for Sqlite {
                         [now, task.id.to_string()],
                     )
                     .unwrap();
-                Ok(())
+                Ok(task)
             }
             Err(_) => Err(Error::TaskDoesNotExist {}),
         }
@@ -105,7 +105,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn change_task_desc(&self, id: u32, desc: String) -> Result<(), Error> {
+    fn change_task_desc(&self, id: i64, desc: String) -> Result<(), Error> {
         match self.task(id) {
             Ok(_) => {
                 self.conn
@@ -120,7 +120,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn reopen_id(&self, id: u32) -> Result<(), Error> {
+    fn reopen_id(&self, id: i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
                 self.add_task(task.desc)?;
