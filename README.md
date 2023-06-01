@@ -53,6 +53,13 @@ mytime reopen --id 12
 mytime reopen -i 12
 ```
 
+Set (toggle) if a task has been reported to the tracker app:
+
+```bash
+mytime report -i 12
+mytime report --id 12
+```
+
 ## Database
 
 The first time `mytime` is executed, it creates the folder `$HOME/.local/share/mytime`. It contains a `sqlite3` database (`mytime.db`) to store data.
@@ -105,7 +112,4 @@ The binary file will be into the `target` folder.
 
 ## TODO
 
-* New: Store the app version into the database to migrate it for new versions
-* New: Add a new column to set if the task has been reported
-* Fix: Cmd -> take app version of cargo
-* New: Add changelog and close first version
+* New: Commands => change strings to an enum

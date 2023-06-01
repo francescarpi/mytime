@@ -85,12 +85,19 @@ impl<'a> Show<'a> {
                 None => "🏃".to_string(),
             };
 
+            let reported = if task.reported {
+                "Yes"
+            } else {
+                "No"
+            };
+
             table.add_row(vec![
                 Cell::new(task.id),
-                Cell::new(task.desc.clone()),
+                Cell::new(&task.desc),
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(task.duration())).set_alignment(CellAlignment::Right),
+                Cell::new(&reported).set_alignment(CellAlignment::Center),
             ]);
         }
 
@@ -142,6 +149,7 @@ impl<'a> Show<'a> {
             Cell::new("Start").add_attribute(Attribute::Bold),
             Cell::new("End").add_attribute(Attribute::Bold),
             Cell::new("Duration").add_attribute(Attribute::Bold),
+            Cell::new("Reported").add_attribute(Attribute::Bold),
         ]
     }
 

@@ -51,6 +51,7 @@ impl Db for Sqlite {
                 desc: row.get(1)?,
                 start: row.get(2)?,
                 end: row.get(3)?,
+                reported: row.get(4)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -69,6 +70,7 @@ impl Db for Sqlite {
                 desc: row.get(1)?,
                 start: row.get(2)?,
                 end: row.get(3)?,
+                reported: row.get(4)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -129,6 +131,21 @@ impl Db for Sqlite {
             Err(_) => Err(Error::TaskDoesNotExist {}),
         }
     }
+
+    fn report_task(&self, id: i64) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(task) => {
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET reported = ? WHERE id = ?",
+                        [!task.reported as i32, id as i32],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist {}),
+        }
+    }
 }
 
 impl Sqlite {
@@ -145,17 +162,24 @@ impl Sqlite {
         let created = fs::metadata(&db_path).is_err();
         let conn = Connection::open(&db_path).unwrap();
 
+        const VERSION: &str = env!("CARGO_PKG_VERSION");
+
         if created {
             conn.execute(
                 "CREATE TABLE tasks (
-                    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-                    desc    TEXT NOT NULL,
-                    start   INTEGER NOT NULL,
-                    end     INTEGER DEFAULT NULL
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    desc        TEXT NOT NULL,
+                    start       INTEGER NOT NULL,
+                    end         INTEGER DEFAULT NULL,
+                    reported    INTEGER NOT NULL DEFAULT 0
                 )",
                 (),
             )
-            .unwrap();
+            .expect("Table \"tasks\" couldn't been created");
+            conn.execute("CREATE TABLE app (version TEXT NOT NULL)", ())
+                .expect("Table \"app\" couldn't been created");
+            conn.execute("INSERT INTO app VALUES (?)", [VERSION])
+                .expect("The version had not been added");
         }
 
         conn
@@ -169,6 +193,7 @@ impl Sqlite {
                     desc: row.get(1)?,
                     start: row.get(2)?,
                     end: row.get(3)?,
+                    reported: row.get(4)?,
                 })
             })
             .unwrap();
