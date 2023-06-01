@@ -52,6 +52,7 @@ impl Db for Sqlite {
                 start: row.get(2)?,
                 end: row.get(3)?,
                 reported: row.get(4)?,
+                external_id: row.get(5)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -71,6 +72,7 @@ impl Db for Sqlite {
                 start: row.get(2)?,
                 end: row.get(3)?,
                 reported: row.get(4)?,
+                external_id: row.get(5)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -122,6 +124,21 @@ impl Db for Sqlite {
         }
     }
 
+    fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(_) => {
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET external_id = ? WHERE id = ?",
+                        [external_id, id.to_string()],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist {}),
+        }
+    }
+
     fn reopen_id(&self, id: i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
@@ -150,9 +167,9 @@ impl Db for Sqlite {
 
 impl Sqlite {
     pub fn new(config: Config) -> Self {
-        Self {
-            conn: Self::create_db_if_not_exist(config.app_share_path.clone()),
-        }
+        let conn = Self::create_db_if_not_exist(config.app_share_path.clone());
+        Self::migrate(&conn);
+        Self { conn }
     }
 
     fn create_db_if_not_exist(app_share_path: PathBuf) -> Connection {
@@ -167,11 +184,12 @@ impl Sqlite {
         if created {
             conn.execute(
                 "CREATE TABLE tasks (
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                    desc        TEXT NOT NULL,
-                    start       INTEGER NOT NULL,
-                    end         INTEGER DEFAULT NULL,
-                    reported    INTEGER NOT NULL DEFAULT 0
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    desc            TEXT NOT NULL,
+                    start           INTEGER NOT NULL,
+                    end             INTEGER DEFAULT NULL,
+                    reported        INTEGER NOT NULL DEFAULT 0,
+                    external_id     TEXT DEFAULT NULL
                 )",
                 (),
             )
@@ -194,6 +212,7 @@ impl Sqlite {
                     start: row.get(2)?,
                     end: row.get(3)?,
                     reported: row.get(4)?,
+                    external_id: row.get(5)?,
                 })
             })
             .unwrap();
@@ -203,5 +222,37 @@ impl Sqlite {
             tasks.push(row.unwrap());
         }
         tasks
+    }
+
+    fn migrate(conn: &Connection) {
+        let app_version: &str = env!("CARGO_PKG_VERSION");
+        let migrations = vec![
+            ("0.1.0", None),
+            (
+                "0.1.1",
+                Some("ALTER TABLE tasks ADD external_id TEXT DEFAULT NULL"),
+            ),
+        ];
+
+        let mut stmt_db_version = conn.prepare("SELECT version FROM app").unwrap();
+        let db_version: String = stmt_db_version
+            .query_row((), |row| Ok(row.get(0)?))
+            .unwrap();
+
+        let mut start_migrate = false;
+
+        for migration in migrations {
+            if start_migrate {
+                if let Some(migration) = migration.1 {
+                    conn.execute(migration, ()).unwrap();
+                }
+            }
+
+            if db_version == migration.0 {
+                start_migrate = true;
+            }
+        }
+
+        conn.execute("UPDATE app SET version = ?", [app_version]).unwrap();
     }
 }

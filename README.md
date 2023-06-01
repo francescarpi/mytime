@@ -39,11 +39,12 @@ Stop the current active task:
 mytime stop
 ```
 
-Modify the description of a task:
+Modify the description or external ID:
 
 ```bash
 mytime modify --id 14 --desc "New description"
 mytime modify -i 14 -d "New description"
+mytime modify -i 14 -e "12345"
 ```
 
 Reopen a closed task:

@@ -26,9 +26,13 @@ fn main() {
             show.today();
         }
         Some(("modify", sub_m)) => {
-            let desc = sub_m.get_one::<String>("desc").unwrap();
             let id = sub_m.get_one::<i64>("id").unwrap();
-            actions::modify::Modify::task(&db, id.clone(), desc.clone());
+            if let Some(desc) = sub_m.get_one::<String>("desc") {
+                actions::modify::Modify::desc(&db, id.clone(), desc.clone());
+            }
+            if let Some(external_id) = sub_m.get_one::<String>("external_id") {
+                actions::modify::Modify::external_id(&db, id.clone(), external_id.clone());
+            }
             show.today();
         }
         Some(("reopen", sub_m)) => {

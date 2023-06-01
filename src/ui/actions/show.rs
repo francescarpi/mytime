@@ -86,15 +86,17 @@ impl<'a> Show<'a> {
                 None => "🏃".to_string(),
             };
 
-            let reported = if task.reported {
-                "🟢"
-            } else {
-                "🔴"
+            let reported = if task.reported { "🟢" } else { "🔴" };
+
+            let external_id = match task.external_id.clone() {
+                Some(id) => id,
+                None => "".to_string(),
             };
 
             table.add_row(vec![
                 Cell::new(task.id),
                 Cell::new(&task.desc),
+                Cell::new(external_id).set_alignment(CellAlignment::Right),
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(task.duration())).set_alignment(CellAlignment::Right),
@@ -147,6 +149,7 @@ impl<'a> Show<'a> {
                 .add_attribute(Attribute::Bold)
                 .fg(Color::Green),
             Cell::new("Desc").add_attribute(Attribute::Bold),
+            Cell::new("Ext.ID").add_attribute(Attribute::Bold),
             Cell::new("Start").add_attribute(Attribute::Bold),
             Cell::new("End").add_attribute(Attribute::Bold),
             Cell::new("Duration").add_attribute(Attribute::Bold),
