@@ -2,9 +2,12 @@ use chrono::NaiveDate;
 use clap::{Arg, ArgMatches, Command};
 
 pub fn command() -> ArgMatches {
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+    const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
+
     Command::new("mytime")
-        .author("Francesc Arpí Roca")
-        .version("0.1.") // get from cargo
+        .author(AUTHORS)
+        .version(VERSION) // get from cargo
         .about("Program to tracker your working time")
         .subcommand(
             Command::new("start").about("Start a new task").arg(

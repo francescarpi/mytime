@@ -107,5 +107,3 @@ The binary file will be into the `target` folder.
 
 * New: Store the app version into the database to migrate it for new versions
 * New: Add a new column to set if the task has been reported
-* Fix: Cmd -> take app version of cargo
-* New: Add changelog and close first version
