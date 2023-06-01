@@ -9,14 +9,21 @@ It's used to tracking the working time.
 
 Run `mytime` to show the available commands.
 
-Show the table tasks:
+Show the tasks table:
 
 ```bash
 mytime show
-mytime show -r today
-mytime show --range today
-mytime show --range week
-mytime show --range month
+mytime show -p today
+mytime show --period today
+mytime show --period week
+mytime show --period month
+mytime show -p month
+
+mytime show -r 1
+mytime show --relative 1 (1 == -1 == yesterday)
+
+mytime show -d "2023-05-30"
+mytime show --date "2023-05-30"
 ```
 
 Start a new task:
