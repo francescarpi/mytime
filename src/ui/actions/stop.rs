@@ -1,4 +1,4 @@
-use crate::db::Db;
+use crate::db::traits::Db;
 use crate::core::utils::display::{error, success};
 use crate::core::utils::formatters::format_seconds;
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::task::Task;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
-use crate::db::Db;
+use crate::db::traits::Db;
 use chrono::{Datelike, Duration, Local, NaiveDate};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;

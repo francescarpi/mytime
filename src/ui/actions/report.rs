@@ -1,5 +1,5 @@
 use crate::core::utils::display::{error, success};
-use crate::db::Db;
+use crate::db::traits::Db;
 
 pub struct Report {}
 

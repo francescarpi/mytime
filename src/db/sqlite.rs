@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use crate::core::config::Config;
 use crate::core::errors::Error;
 use crate::core::task::Task;
-use crate::db::Db;
+use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
 use rusqlite::{Connection, Statement};
 
