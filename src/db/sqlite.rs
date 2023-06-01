@@ -167,11 +167,12 @@ impl Sqlite {
         if created {
             conn.execute(
                 "CREATE TABLE tasks (
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                    desc        TEXT NOT NULL,
-                    start       INTEGER NOT NULL,
-                    end         INTEGER DEFAULT NULL,
-                    reported    INTEGER NOT NULL DEFAULT 0
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    desc            TEXT NOT NULL,
+                    start           INTEGER NOT NULL,
+                    end             INTEGER DEFAULT NULL,
+                    reported        INTEGER NOT NULL DEFAULT 0,
+                    external_id     TEXT DEFAULT NULL
                 )",
                 (),
             )
