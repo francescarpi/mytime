@@ -102,3 +102,10 @@ The binary file will be into the `target` folder.
 ![Screenshot 2](./screenshots/capture2.png)
 
 ![Screenshot 3](./screenshots/capture3.png)
+
+## TODO
+
+* New: Store the app version into the database to migrate it for new versions
+* New: Add a new column to set if the task has been reported
+* Fix: Cmd -> take app version of cargo
+* New: Add changelog and close first version
