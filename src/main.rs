@@ -1,41 +1,58 @@
-use clap::Parser;
-
-pub mod ui;
 pub mod core;
 pub mod db;
+pub mod ui;
 
-use crate::ui::cli::{Commands, ShowRange, Cli};
 use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
 use crate::ui::actions;
+use crate::ui::cmd::command;
+use chrono::NaiveDate;
 
 fn main() {
     let config = Config::new();
     let db = Sqlite::new(config);
 
-    let cli = Cli::parse();
     let show = actions::show::Show::new(&db);
+    let matches = command();
 
-    match &cli.command {
-        Commands::Start(start_options) => {
-            actions::start::Start::task(&db, start_options.desc.clone());
+    match matches.subcommand() {
+        Some(("start", sub_m)) => {
+            let desc = sub_m.get_one::<String>("desc").unwrap();
+            actions::start::Start::task(&db, desc.clone());
             show.today();
         }
-        Commands::Stop => {
+        Some(("stop", _)) => {
             actions::stop::Stop::active(&db);
             show.today();
         }
-        Commands::Show(show_options) => match show_options.range {
-            ShowRange::Today => show.today(),
-            ShowRange::Week => show.week(),
-            ShowRange::Month => show.month(),
-        },
-        Commands::Modify(modify_options) => {
-            actions::modify::Modify::task(&db, modify_options.id, modify_options.desc.clone());
+        Some(("modify", sub_m)) => {
+            let desc = sub_m.get_one::<String>("desc").unwrap();
+            let id = sub_m.get_one::<i64>("id").unwrap();
+            actions::modify::Modify::task(&db, id.clone(), desc.clone());
             show.today();
         }
-        Commands::Reopen(reopen_options) => {
-            actions::reopen::Reopen::task(&db, reopen_options.id);
+        Some(("reopen", sub_m)) => {
+            let id = sub_m.get_one::<i64>("id").unwrap();
+            actions::reopen::Reopen::task(&db, id.clone());
+            show.today();
+        }
+        Some(("show", sub_m)) => {
+            if let Some(period) = sub_m.get_one::<String>("period") {
+                match period.as_str() {
+                    "today" => show.today(),
+                    "week" => show.week(),
+                    "month" => show.month(),
+                    _ => show.today(),
+                };
+            } else if let Some(relative) = sub_m.get_one::<i64>("relative") {
+                show.relative(relative.clone());
+            } else if let Some(date) = sub_m.get_one::<NaiveDate>("date") {
+                show.date(date.clone());
+            } else {
+                show.today();
+            }
+        }
+        _ => {
             show.today();
         }
     }
