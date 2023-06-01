@@ -19,8 +19,6 @@ fn main() {
     let config = Config::new();
     let db = Sqlite::new(config);
 
-    let show = Show::new(&db);
-
     match command().subcommand() {
         Some(("start", sub_m)) => Start::perform(&db, &sub_m),
         Some(("stop", sub_m)) => Stop::perform(&db, &sub_m),
@@ -28,8 +26,6 @@ fn main() {
         Some(("reopen", sub_m)) => Reopen::perform(&db, &sub_m),
         Some(("show", sub_m)) => Show::perform(&db, &sub_m),
         Some(("report", sub_m)) => Report::perform(&db, &sub_m),
-        _ => {
-            show.today();
-        }
+        _ => Show::new(&db).today(),
     }
 }
