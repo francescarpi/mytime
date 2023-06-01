@@ -1,11 +1,13 @@
+use chrono::{Datelike, Duration, Local, NaiveDate};
+use clap::ArgMatches;
+use comfy_table::presets::UTF8_FULL;
+use comfy_table::*;
 use std::collections::HashMap;
 
 use crate::core::task::Task;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
 use crate::db::traits::Db;
-use chrono::{Datelike, Duration, Local, NaiveDate};
-use comfy_table::presets::UTF8_FULL;
-use comfy_table::*;
+use crate::ui::actions::traits::Action;
 
 pub struct Show<'a> {
     db: &'a dyn Db,
@@ -162,5 +164,25 @@ impl<'a> Show<'a> {
             Cell::new("Desc").add_attribute(Attribute::Bold),
             Cell::new("Duration").add_attribute(Attribute::Bold),
         ]
+    }
+}
+
+impl Action for Show<'_> {
+    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
+        let show = Show::new(db);
+        if let Some(period) = sub_m.get_one::<String>("period") {
+            match period.as_str() {
+                "today" => show.today(),
+                "week" => show.week(),
+                "month" => show.month(),
+                _ => show.today(),
+            };
+        } else if let Some(relative) = sub_m.get_one::<i64>("relative") {
+            show.relative(relative.clone());
+        } else if let Some(date) = sub_m.get_one::<NaiveDate>("date") {
+            show.date(date.clone());
+        } else {
+            show.today();
+        }
     }
 }

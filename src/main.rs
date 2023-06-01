@@ -2,65 +2,32 @@ pub mod core;
 pub mod db;
 pub mod ui;
 
+use ui::actions::traits::Action;
+
 use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
-use crate::ui::actions;
 use crate::ui::cmd::command;
-use chrono::NaiveDate;
+
+use crate::ui::actions::show::Show;
+use crate::ui::actions::start::Start;
+use crate::ui::actions::stop::Stop;
+use crate::ui::actions::modify::Modify;
+use crate::ui::actions::reopen::Reopen;
+use crate::ui::actions::report::Report;
 
 fn main() {
     let config = Config::new();
     let db = Sqlite::new(config);
 
-    let show = actions::show::Show::new(&db);
-    let matches = command();
+    let show = Show::new(&db);
 
-    match matches.subcommand() {
-        Some(("start", sub_m)) => {
-            let desc = sub_m.get_one::<String>("desc").unwrap();
-            actions::start::Start::task(&db, desc.clone());
-            show.today();
-        }
-        Some(("stop", _)) => {
-            actions::stop::Stop::active(&db);
-            show.today();
-        }
-        Some(("modify", sub_m)) => {
-            let id = sub_m.get_one::<i64>("id").unwrap();
-            if let Some(desc) = sub_m.get_one::<String>("desc") {
-                actions::modify::Modify::desc(&db, id.clone(), desc.clone());
-            }
-            if let Some(external_id) = sub_m.get_one::<String>("external_id") {
-                actions::modify::Modify::external_id(&db, id.clone(), external_id.clone());
-            }
-            show.today();
-        }
-        Some(("reopen", sub_m)) => {
-            let id = sub_m.get_one::<i64>("id").unwrap();
-            actions::reopen::Reopen::task(&db, id.clone());
-            show.today();
-        }
-        Some(("show", sub_m)) => {
-            if let Some(period) = sub_m.get_one::<String>("period") {
-                match period.as_str() {
-                    "today" => show.today(),
-                    "week" => show.week(),
-                    "month" => show.month(),
-                    _ => show.today(),
-                };
-            } else if let Some(relative) = sub_m.get_one::<i64>("relative") {
-                show.relative(relative.clone());
-            } else if let Some(date) = sub_m.get_one::<NaiveDate>("date") {
-                show.date(date.clone());
-            } else {
-                show.today();
-            }
-        }
-        Some(("report", sub_m)) => {
-            let id = sub_m.get_one::<i64>("id").unwrap();
-            actions::report::Report::task(&db, id.clone());
-            show.today();
-        }
+    match command().subcommand() {
+        Some(("start", sub_m)) => Start::perform(&db, &sub_m),
+        Some(("stop", sub_m)) => Stop::perform(&db, &sub_m),
+        Some(("modify", sub_m)) => Modify::perform(&db, &sub_m),
+        Some(("reopen", sub_m)) => Reopen::perform(&db, &sub_m),
+        Some(("show", sub_m)) => Show::perform(&db, &sub_m),
+        Some(("report", sub_m)) => Report::perform(&db, &sub_m),
         _ => {
             show.today();
         }
