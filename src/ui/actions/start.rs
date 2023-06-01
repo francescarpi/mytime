@@ -1,12 +1,11 @@
-use clap::ArgMatches;
+use clap::{Arg, ArgMatches, Command};
 
-use crate::db::traits::Db;
 use crate::core::utils::display::{error, success};
-use crate::ui::actions::traits::Action;
+use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
+use crate::ui::traits::Action;
 
 pub struct Start {}
-
 
 impl Action for Start {
     fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
@@ -20,5 +19,15 @@ impl Action for Start {
         }
 
         Show::new(db).today();
+    }
+
+    fn subcomand() -> Command {
+        Command::new("start").about("Start a new task").arg(
+            Arg::new("desc")
+                .short('d')
+                .help("Description")
+                .required(true)
+                .value_parser(clap::value_parser!(String)),
+        )
     }
 }

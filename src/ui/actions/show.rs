@@ -1,5 +1,5 @@
 use chrono::{Datelike, Duration, Local, NaiveDate};
-use clap::ArgMatches;
+use clap::{Arg, ArgMatches, Command};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
 use std::collections::HashMap;
@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use crate::core::task::Task;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
 use crate::db::traits::Db;
-use crate::ui::actions::traits::Action;
+use crate::ui::traits::Action;
 
 pub struct Show<'a> {
     db: &'a dyn Db,
@@ -165,6 +165,13 @@ impl<'a> Show<'a> {
             Cell::new("Duration").add_attribute(Attribute::Bold),
         ]
     }
+
+    fn validate_date(date: &str) -> Result<NaiveDate, String> {
+        match NaiveDate::parse_from_str(date, "%Y-%m-%d") {
+            Ok(date) => Ok(date),
+            Err(_) => Err(String::from("Invalid date")),
+        }
+    }
 }
 
 impl Action for Show<'_> {
@@ -184,5 +191,30 @@ impl Action for Show<'_> {
         } else {
             show.today();
         }
+    }
+
+    fn subcomand() -> Command {
+        Command::new("show")
+            .about("Display the tasks table")
+            .arg(
+                Arg::new("period")
+                    .short('p')
+                    .conflicts_with_all(&["relative", "date"])
+                    .value_parser(["today", "week", "month"]),
+            )
+            .arg(
+                Arg::new("relative")
+                    .short('r')
+                    .conflicts_with_all(&["period", "date"])
+                    .help("1 == -1 == yesterday")
+                    .value_parser(clap::value_parser!(i64).range(0..=7)),
+            )
+            .arg(
+                Arg::new("date")
+                    .short('d')
+                    .conflicts_with_all(&["relative", "period"])
+                    .value_parser(Self::validate_date)
+                    .help("Format: YYYY-MM-DD"),
+            )
     }
 }

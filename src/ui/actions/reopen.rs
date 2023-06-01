@@ -1,9 +1,9 @@
-use clap::ArgMatches;
+use clap::{Arg, ArgMatches, Command};
 
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
-use crate::ui::actions::traits::Action;
+use crate::ui::traits::Action;
 
 pub struct Reopen {}
 
@@ -30,5 +30,15 @@ impl Action for Reopen {
         let id = sub_m.get_one::<i64>("id").unwrap();
         Self::task(db, id.clone());
         Show::new(db).today();
+    }
+
+    fn subcomand() -> Command {
+        Command::new("reopen").about("Reopen a closed task").arg(
+            Arg::new("id")
+                .short('i')
+                .help("Task ID")
+                .value_parser(clap::value_parser!(i64))
+                .required(true),
+        )
     }
 }

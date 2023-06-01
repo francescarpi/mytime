@@ -1,9 +1,9 @@
-use clap::ArgMatches;
+use clap::{Arg, ArgMatches, Command};
 
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
-use crate::ui::actions::traits::Action;
+use crate::ui::traits::Action;
 
 pub struct Report {}
 
@@ -17,5 +17,17 @@ impl Action for Report {
         };
 
         Show::new(db).today();
+    }
+
+    fn subcomand() -> Command {
+        Command::new("report")
+            .about("Sets if a task has been reported (toggle)")
+            .arg(
+                Arg::new("id")
+                    .short('i')
+                    .help("Task ID")
+                    .value_parser(clap::value_parser!(i64))
+                    .required(true),
+            )
     }
 }

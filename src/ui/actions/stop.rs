@@ -1,9 +1,9 @@
-use clap::ArgMatches;
+use clap::{ArgMatches, Command};
 
 use crate::db::traits::Db;
 use crate::core::utils::display::{error, success};
 use crate::core::utils::formatters::format_seconds;
-use crate::ui::actions::traits::Action;
+use crate::ui::traits::Action;
 use crate::ui::actions::show::Show;
 
 pub struct Stop {}
@@ -24,5 +24,9 @@ impl Action for Stop {
             Err(_) => error("There is not any active task!".to_string()),
         };
         Show::new(db).today();
+    }
+
+    fn subcomand() -> Command {
+        Command::new("stop").about("Stop de active task")
     }
 }

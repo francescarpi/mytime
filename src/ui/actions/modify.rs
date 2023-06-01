@@ -1,9 +1,9 @@
-use clap::ArgMatches;
+use clap::{Arg, ArgGroup, ArgMatches, Command};
 
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
-use crate::ui::actions::traits::Action;
+use crate::ui::traits::Action;
 
 pub struct Modify {}
 
@@ -33,5 +33,36 @@ impl Action for Modify {
             Self::external_id(db, id.clone(), external_id.clone());
         }
         Show::new(db).today();
+    }
+
+    fn subcomand() -> Command {
+        Command::new("modify")
+            .about("Modify a task's description")
+            .arg(
+                Arg::new("id")
+                    .short('i')
+                    .help("Task ID")
+                    .value_parser(clap::value_parser!(i64))
+                    .required(true),
+            )
+            .arg(
+                Arg::new("desc")
+                    .short('d')
+                    .help("Description")
+                    .value_parser(clap::value_parser!(String))
+                    .conflicts_with("external_id"),
+            )
+            .arg(
+                Arg::new("external_id")
+                    .short('e')
+                    .help("External ID")
+                    .value_parser(clap::value_parser!(String))
+                    .conflicts_with("desc"),
+            )
+            .group(
+                ArgGroup::new("modify")
+                    .args(["desc", "external_id"])
+                    .required(true),
+            )
     }
 }
