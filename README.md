@@ -111,6 +111,3 @@ The binary file will be into the `target` folder.
 
 ![Screenshot 3](./screenshots/capture3.png)
 
-## TODO
-
-* New: Commands => change strings to an enum
