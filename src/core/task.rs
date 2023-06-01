@@ -6,6 +6,7 @@ pub struct Task {
     pub desc: String,
     pub start: String,
     pub end: Option<String>,
+    pub reported: bool,
 }
 
 impl Task {

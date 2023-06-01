@@ -70,6 +70,15 @@ pub fn command() -> ArgMatches {
                     .required(true),
             ),
         )
+        .subcommand(
+            Command::new("report").about("Sets if a task has been reported (toggle)").arg(
+                Arg::new("id")
+                    .short('i')
+                    .help("Task ID")
+                    .value_parser(clap::value_parser!(i64))
+                    .required(true),
+            ),
+        )
         .get_matches()
 }
 

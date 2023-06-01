@@ -52,6 +52,11 @@ fn main() {
                 show.today();
             }
         }
+        Some(("report", sub_m)) => {
+            let id = sub_m.get_one::<i64>("id").unwrap();
+            actions::report::Report::task(&db, id.clone());
+            show.today();
+        }
         _ => {
             show.today();
         }

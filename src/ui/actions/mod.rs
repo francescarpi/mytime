@@ -3,3 +3,4 @@ pub mod reopen;
 pub mod show;
 pub mod start;
 pub mod stop;
+pub mod report;
