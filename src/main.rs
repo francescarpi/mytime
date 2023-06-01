@@ -6,6 +6,7 @@ use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
 use crate::ui::actions;
 use crate::ui::cmd::command;
+use chrono::NaiveDate;
 
 fn main() {
     let config = Config::new();
@@ -43,10 +44,10 @@ fn main() {
                     "month" => show.month(),
                     _ => show.today(),
                 };
-            } else if let Some(relative) = sub_m.get_one::<u8>("relative") {
-                dbg!(relative);
-            } else if let Some(date) = sub_m.get_one::<String>("date") {
-                dbg!(date);
+            } else if let Some(relative) = sub_m.get_one::<i64>("relative") {
+                show.relative(relative.clone());
+            } else if let Some(date) = sub_m.get_one::<NaiveDate>("date") {
+                show.date(date.clone());
             } else {
                 show.today();
             }

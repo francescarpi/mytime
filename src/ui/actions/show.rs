@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::db::Db;
 use crate::core::task::Task;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
-use chrono::{Datelike, Local, Utc};
+use crate::db::Db;
+use chrono::{Datelike, Duration, Local, NaiveDate};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
 
@@ -17,7 +17,7 @@ impl<'a> Show<'a> {
     }
 
     pub fn today(&self) {
-        let today = Utc::now();
+        let today = Local::today().naive_local();
         let tasks = self.db.day_tasks(today);
 
         println!("\n📅 Today ({})", format_seconds(self.working_time(&tasks)));
@@ -43,6 +43,24 @@ impl<'a> Show<'a> {
         println!("\n📅 Month ({})", format_seconds(self.working_time(&tasks)));
 
         self.print_tasks_table(&tasks, false);
+        self.print_summary_table(&tasks);
+    }
+
+    pub fn relative(&self, value: i64) {
+        let today = Local::today().naive_local();
+        let date = today - Duration::days(value);
+        self.date(date);
+    }
+
+    pub fn date(&self, date: NaiveDate) {
+        let tasks = self.db.day_tasks(date);
+        println!(
+            "\n📅 Date {} ({})",
+            date.format("%Y-%m-%d"),
+            format_seconds(self.working_time(&tasks))
+        );
+
+        self.print_tasks_table(&tasks, true);
         self.print_summary_table(&tasks);
     }
 

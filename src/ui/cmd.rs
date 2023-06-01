@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use clap::{Arg, ArgMatches, Command};
 
 pub fn command() -> ArgMatches {
@@ -29,12 +30,13 @@ pub fn command() -> ArgMatches {
                         .short('r')
                         .conflicts_with_all(&["period", "date"])
                         .help("1 == -1 == yesterday")
-                        .value_parser(clap::value_parser!(u8).range(0..=7)),
+                        .value_parser(clap::value_parser!(i64).range(0..=7)),
                 )
                 .arg(
                     Arg::new("date")
                         .short('d')
                         .conflicts_with_all(&["relative", "period"])
+                        .value_parser(validate_date)
                         .help("Format: YYYY-MM-DD"),
                 ),
         )
@@ -66,4 +68,11 @@ pub fn command() -> ArgMatches {
             ),
         )
         .get_matches()
+}
+
+fn validate_date(date: &str) -> Result<NaiveDate, String> {
+    match NaiveDate::parse_from_str(date, "%Y-%m-%d") {
+        Ok(date) => Ok(date),
+        Err(_) => Err(String::from("Invalid date")),
+    }
 }

@@ -2,10 +2,10 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::core::config::Config;
-use crate::db::Db;
 use crate::core::errors::Error;
 use crate::core::task::Task;
-use chrono::{DateTime, Utc};
+use crate::db::Db;
+use chrono::{NaiveDate, Utc};
 use rusqlite::{Connection, Statement};
 
 #[derive(Debug)]
@@ -14,7 +14,7 @@ pub struct Sqlite {
 }
 
 impl Db for Sqlite {
-    fn day_tasks(&self, day: DateTime<Utc>) -> Vec<Task> {
+    fn day_tasks(&self, day: NaiveDate) -> Vec<Task> {
         let day = day.format("%Y-%m-%d").to_string();
         let mut stmt = self
             .conn
