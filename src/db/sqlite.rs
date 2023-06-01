@@ -52,6 +52,7 @@ impl Db for Sqlite {
                 start: row.get(2)?,
                 end: row.get(3)?,
                 reported: row.get(4)?,
+                external_id: row.get(5)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -71,6 +72,7 @@ impl Db for Sqlite {
                 start: row.get(2)?,
                 end: row.get(3)?,
                 reported: row.get(4)?,
+                external_id: row.get(5)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -195,6 +197,7 @@ impl Sqlite {
                     start: row.get(2)?,
                     end: row.get(3)?,
                     reported: row.get(4)?,
+                    external_id: row.get(5)?,
                 })
             })
             .unwrap();
