@@ -150,9 +150,9 @@ impl Db for Sqlite {
 
 impl Sqlite {
     pub fn new(config: Config) -> Self {
-        Self {
-            conn: Self::create_db_if_not_exist(config.app_share_path.clone()),
-        }
+        let conn = Self::create_db_if_not_exist(config.app_share_path.clone());
+        Self::migrate(&conn);
+        Self { conn }
     }
 
     fn create_db_if_not_exist(app_share_path: PathBuf) -> Connection {
@@ -203,5 +203,37 @@ impl Sqlite {
             tasks.push(row.unwrap());
         }
         tasks
+    }
+
+    fn migrate(conn: &Connection) {
+        let app_version: &str = env!("CARGO_PKG_VERSION");
+        let migrations = vec![
+            ("0.1.0", None),
+            (
+                "0.1.1",
+                Some("ALTER TABLE tasks ADD external_id TEXT DEFAULT NULL"),
+            ),
+        ];
+
+        let mut stmt_db_version = conn.prepare("SELECT version FROM app").unwrap();
+        let db_version: String = stmt_db_version
+            .query_row((), |row| Ok(row.get(0)?))
+            .unwrap();
+
+        let mut start_migrate = false;
+
+        for migration in migrations {
+            if start_migrate {
+                if let Some(migration) = migration.1 {
+                    conn.execute(migration, ()).unwrap();
+                }
+            }
+
+            if db_version == migration.0 {
+                start_migrate = true;
+            }
+        }
+
+        conn.execute("UPDATE app SET version = ?", [app_version]).unwrap();
     }
 }
