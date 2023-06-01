@@ -17,7 +17,7 @@ impl<'a> Show<'a> {
     }
 
     pub fn today(&self) {
-        let today = Local::today().naive_local();
+        let today = Local::now().date_naive();
         let tasks = self.db.day_tasks(today);
 
         println!("\n📅 Today ({})", format_seconds(self.working_time(&tasks)));
@@ -47,7 +47,7 @@ impl<'a> Show<'a> {
     }
 
     pub fn relative(&self, value: i64) {
-        let today = Local::today().naive_local();
+        let today = Local::now().date_naive();
         let date = today - Duration::days(value);
         self.date(date);
     }
