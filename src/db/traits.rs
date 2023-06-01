@@ -11,6 +11,7 @@ pub trait Db {
     fn stop_task(&self, id: i64) -> Result<Task, Error>;
     fn add_task(&self, desc: String) -> Result<(), Error>;
     fn change_task_desc(&self, id: i64, desc: String) -> Result<(), Error>;
+    fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error>;
     fn reopen_id(&self, id: i64) -> Result<(), Error>;
     fn report_task(&self, id: i64) -> Result<(), Error>;
 }

@@ -124,6 +124,21 @@ impl Db for Sqlite {
         }
     }
 
+    fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(_) => {
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET external_id = ? WHERE id = ?",
+                        [external_id, id.to_string()],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist {}),
+        }
+    }
+
     fn reopen_id(&self, id: i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {

@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use clap::{Arg, ArgMatches, Command};
+use clap::{Arg, ArgGroup, ArgMatches, Command};
 
 pub fn command() -> ArgMatches {
     const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -58,6 +58,18 @@ pub fn command() -> ArgMatches {
                         .short('d')
                         .help("Description")
                         .value_parser(clap::value_parser!(String))
+                        .conflicts_with("external_id"),
+                )
+                .arg(
+                    Arg::new("external_id")
+                        .short('e')
+                        .help("External ID")
+                        .value_parser(clap::value_parser!(String))
+                        .conflicts_with("desc"),
+                )
+                .group(
+                    ArgGroup::new("modify")
+                        .args(["desc", "external_id"])
                         .required(true),
                 ),
         )
@@ -71,13 +83,15 @@ pub fn command() -> ArgMatches {
             ),
         )
         .subcommand(
-            Command::new("report").about("Sets if a task has been reported (toggle)").arg(
-                Arg::new("id")
-                    .short('i')
-                    .help("Task ID")
-                    .value_parser(clap::value_parser!(i64))
-                    .required(true),
-            ),
+            Command::new("report")
+                .about("Sets if a task has been reported (toggle)")
+                .arg(
+                    Arg::new("id")
+                        .short('i')
+                        .help("Task ID")
+                        .value_parser(clap::value_parser!(i64))
+                        .required(true),
+                ),
         )
         .get_matches()
 }
