@@ -22,8 +22,7 @@ impl<'a> Show<'a> {
 
         println!("\n📅 Today ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&tasks, true);
-        self.print_summary_table(&tasks);
+        self.print_tables(&tasks, true);
     }
 
     pub fn week(&self) {
@@ -32,8 +31,7 @@ impl<'a> Show<'a> {
 
         println!("\n📅 Week ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&tasks, false);
-        self.print_summary_table(&tasks);
+        self.print_tables(&tasks, false);
     }
 
     pub fn month(&self) {
@@ -42,8 +40,7 @@ impl<'a> Show<'a> {
 
         println!("\n📅 Month ({})", format_seconds(self.working_time(&tasks)));
 
-        self.print_tasks_table(&tasks, false);
-        self.print_summary_table(&tasks);
+        self.print_tables(&tasks, false);
     }
 
     pub fn relative(&self, value: i64) {
@@ -60,7 +57,11 @@ impl<'a> Show<'a> {
             format_seconds(self.working_time(&tasks))
         );
 
-        self.print_tasks_table(&tasks, true);
+        self.print_tables(&tasks, true);
+    }
+
+    fn print_tables(&self, tasks: &Vec<Task>, show_only_time: bool) {
+        self.print_tasks_table(&tasks, show_only_time);
         self.print_summary_table(&tasks);
     }
 
@@ -86,9 +87,9 @@ impl<'a> Show<'a> {
             };
 
             let reported = if task.reported {
-                "Yes"
+                "🟢"
             } else {
-                "No"
+                "🔴"
             };
 
             table.add_row(vec![
