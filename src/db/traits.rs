@@ -14,4 +14,5 @@ pub trait Db {
     fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error>;
     fn reopen_id(&self, id: i64) -> Result<(), Error>;
     fn report_task(&self, id: i64) -> Result<(), Error>;
+    fn unreported_tasks(&self) -> Vec<Task>;
 }

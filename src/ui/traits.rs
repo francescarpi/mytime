@@ -1,7 +1,8 @@
-use clap::{ArgMatches, Command};
+use crate::core::config::Config;
 use crate::db::traits::Db;
+use clap::{ArgMatches, Command};
 
 pub trait Action {
-    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches);
+    fn perform<'a, 'b>(config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches);
     fn subcomand() -> Command;
 }

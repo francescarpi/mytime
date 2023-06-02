@@ -1,5 +1,6 @@
 use clap::{Arg, ArgMatches, Command};
 
+use crate::core::config::Config;
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
@@ -8,7 +9,7 @@ use crate::ui::traits::Action;
 pub struct Start {}
 
 impl Action for Start {
-    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let desc = sub_m.get_one::<String>("desc").unwrap();
         let external_id = sub_m.get_one::<Option<String>>("desc").unwrap();
 

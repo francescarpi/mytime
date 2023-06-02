@@ -26,10 +26,10 @@ pub mod formatters {
 
 pub mod display {
     pub fn success(msg: String) {
-        println!("\n✅ {msg}\n");
+        println!("✅ {msg}");
     }
 
     pub fn error(msg: String) {
-        println!("\n‼️ {msg}\n");
+        println!("‼️ {msg}");
     }
 }
