@@ -1,5 +1,6 @@
 use clap::{Arg, ArgGroup, ArgMatches, Command};
 
+use crate::core::config::Config;
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
@@ -24,7 +25,7 @@ impl<'a> Modify {
 }
 
 impl Action for Modify {
-    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
         if let Some(desc) = sub_m.get_one::<String>("desc") {
             Self::desc(db, id.clone(), desc.clone());

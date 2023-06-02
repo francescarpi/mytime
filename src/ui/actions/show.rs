@@ -4,6 +4,7 @@ use comfy_table::presets::UTF8_FULL;
 use comfy_table::*;
 use std::collections::HashMap;
 
+use crate::core::config::Config;
 use crate::core::task::Task;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
 use crate::db::traits::Db;
@@ -175,7 +176,7 @@ impl<'a> Show<'a> {
 }
 
 impl Action for Show<'_> {
-    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let show = Show::new(db);
         if let Some(period) = sub_m.get_one::<String>("period") {
             match period.as_str() {

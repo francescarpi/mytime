@@ -1,5 +1,6 @@
 use clap::{Arg, ArgMatches, Command};
 
+use crate::core::config::Config;
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
@@ -26,7 +27,7 @@ impl<'a> Reopen {
 }
 
 impl Action for Reopen {
-    fn perform<'a>(db: &'a dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
         Self::task(db, id.clone());
         Show::new(db).today();

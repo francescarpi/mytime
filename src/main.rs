@@ -10,7 +10,8 @@ use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
 
 use crate::ui::actions::{
-    modify::Modify, reopen::Reopen, report::Report, show::Show, start::Start, stop::Stop,
+    modify::Modify, reopen::Reopen, report::Report, send::Send, show::Show, start::Start,
+    stop::Stop,
 };
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -30,15 +31,17 @@ fn main() {
         .subcommand(Modify::subcomand())
         .subcommand(Reopen::subcomand())
         .subcommand(Report::subcomand())
+        .subcommand(Send::subcomand())
         .get_matches();
 
     match matches.subcommand() {
-        Some(("start", sub_m)) => Start::perform(&db, &sub_m),
-        Some(("stop", sub_m)) => Stop::perform(&db, &sub_m),
-        Some(("modify", sub_m)) => Modify::perform(&db, &sub_m),
-        Some(("reopen", sub_m)) => Reopen::perform(&db, &sub_m),
-        Some(("show", sub_m)) => Show::perform(&db, &sub_m),
-        Some(("report", sub_m)) => Report::perform(&db, &sub_m),
+        Some(("start", sub_m)) => Start::perform(&config, &db, &sub_m),
+        Some(("stop", sub_m)) => Stop::perform(&config, &db, &sub_m),
+        Some(("modify", sub_m)) => Modify::perform(&config, &db, &sub_m),
+        Some(("reopen", sub_m)) => Reopen::perform(&config, &db, &sub_m),
+        Some(("show", sub_m)) => Show::perform(&config, &db, &sub_m),
+        Some(("report", sub_m)) => Report::perform(&config, &db, &sub_m),
+        Some(("send", sub_m)) => Send::perform(&config, &db, &sub_m),
         _ => Show::new(&db).today(),
     }
 }

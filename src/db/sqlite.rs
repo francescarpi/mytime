@@ -6,7 +6,7 @@ use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
-use rusqlite::{Connection, Statement, params};
+use rusqlite::{Connection, Statement, params_from_iter, params};
 
 #[derive(Debug)]
 pub struct Sqlite {
@@ -20,7 +20,7 @@ impl Db for Sqlite {
             .conn
             .prepare("SELECT * FROM tasks WHERE strftime('%Y-%m-%d', start) = ? ORDER BY id DESC")
             .unwrap();
-        self.query_tasks(&mut stmt, day)
+        self.query_tasks(&mut stmt, Some(day))
     }
 
     fn month_tasks(&self, month: u32, year: i32) -> Vec<Task> {
@@ -29,7 +29,7 @@ impl Db for Sqlite {
             .conn
             .prepare("SELECT * FROM tasks WHERE strftime('%Y-%m', start) = ? ORDER BY id DESC")
             .unwrap();
-        self.query_tasks(&mut stmt, year_month)
+        self.query_tasks(&mut stmt, Some(year_month))
     }
 
     fn week_tasks(&self, week: u32) -> Vec<Task> {
@@ -37,7 +37,7 @@ impl Db for Sqlite {
             .conn
             .prepare("SELECT * FROM tasks WHERE strftime('%W', start) = ? ORDER BY id DESC")
             .unwrap();
-        self.query_tasks(&mut stmt, week.to_string())
+        self.query_tasks(&mut stmt, Some(week.to_string()))
     }
 
     fn active_task(&self) -> Result<Task, Error> {
@@ -166,6 +166,14 @@ impl Db for Sqlite {
             Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
+
+    fn unreported_tasks(&self) -> Vec<Task> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT * FROM tasks WHERE end IS NOT NULL AND reported = false")
+            .unwrap();
+        self.query_tasks(&mut stmt, None)
+    }
 }
 
 impl Sqlite {
@@ -206,9 +214,14 @@ impl Sqlite {
         conn
     }
 
-    fn query_tasks(&self, stmt: &mut Statement, param: String) -> Vec<Task> {
+    fn query_tasks(&self, stmt: &mut Statement, param: Option<String>) -> Vec<Task> {
+        let mut params:Vec<String> = Vec::new();
+        if param.is_some() {
+            params.push(param.unwrap());
+        }
+
         let rows = stmt
-            .query_map([param], |row| {
+            .query_map(params_from_iter(params), |row| {
                 Ok(Task {
                     id: row.get(0)?,
                     desc: row.get(1)?,
