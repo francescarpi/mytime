@@ -56,7 +56,7 @@ impl Db for Sqlite {
             })
         }) {
             Ok(task) => Ok(task),
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
@@ -76,7 +76,7 @@ impl Db for Sqlite {
             })
         }) {
             Ok(task) => Ok(task),
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
@@ -92,13 +92,13 @@ impl Db for Sqlite {
                     .unwrap();
                 Ok(task)
             }
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
     fn add_task(&self, desc: String, external_id: Option<String>) -> Result<(), Error> {
         match self.active_task() {
-            Ok(_) => Err(Error::ExistActiveTask {}),
+            Ok(_) => Err(Error::ExistActiveTask),
             Err(_) => {
                 let now = Utc::now().to_rfc3339();
                 self.conn
@@ -123,7 +123,7 @@ impl Db for Sqlite {
                     .unwrap();
                 Ok(())
             }
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
@@ -138,7 +138,7 @@ impl Db for Sqlite {
                     .unwrap();
                 Ok(())
             }
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
@@ -148,7 +148,7 @@ impl Db for Sqlite {
                 self.add_task(task.desc, task.external_id)?;
                 Ok(())
             }
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
@@ -163,13 +163,13 @@ impl Db for Sqlite {
                     .unwrap();
                 Ok(())
             }
-            Err(_) => Err(Error::TaskDoesNotExist {}),
+            Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 }
 
 impl Sqlite {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: &Config) -> Self {
         let conn = Self::create_db_if_not_exist(config.app_share_path.clone());
         Self::migrate(&conn);
         Self { conn }

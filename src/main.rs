@@ -1,26 +1,24 @@
 pub mod core;
 pub mod db;
+pub mod integrations;
 pub mod ui;
 
-use ui::traits::Action;
 use clap::Command;
+use ui::traits::Action;
 
 use crate::core::config::Config;
 use crate::db::sqlite::Sqlite;
 
-use crate::ui::actions::modify::Modify;
-use crate::ui::actions::reopen::Reopen;
-use crate::ui::actions::report::Report;
-use crate::ui::actions::show::Show;
-use crate::ui::actions::start::Start;
-use crate::ui::actions::stop::Stop;
+use crate::ui::actions::{
+    modify::Modify, reopen::Reopen, report::Report, show::Show, start::Start, stop::Stop,
+};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 fn main() {
     let config = Config::new();
-    let db = Sqlite::new(config);
+    let db = Sqlite::new(&config);
 
     let matches = Command::new("mytime")
         .author(AUTHORS)
