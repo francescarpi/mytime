@@ -12,7 +12,7 @@ impl Action for Start {
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let desc = sub_m.get_one::<String>("desc").unwrap();
         let project = sub_m.get_one::<String>("project").unwrap();
-        let external_id = sub_m.get_one::<Option<String>>("desc").unwrap();
+        let external_id = sub_m.get_one::<String>("external_id").map(|value| value.clone());
 
         match db.add_task(project.clone(), desc.clone(), external_id.clone()) {
             Ok(_) => success("Task added successfully!".to_string()),
