@@ -8,6 +8,7 @@ pub struct Task {
     pub end: Option<String>,
     pub reported: bool,
     pub external_id: Option<String>,
+    pub project: String,
 }
 
 impl Task {

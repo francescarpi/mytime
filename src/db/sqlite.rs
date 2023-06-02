@@ -6,7 +6,7 @@ use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
-use rusqlite::{Connection, Statement, params_from_iter, params};
+use rusqlite::{params, params_from_iter, Connection, Statement};
 
 #[derive(Debug)]
 pub struct Sqlite {
@@ -53,6 +53,7 @@ impl Db for Sqlite {
                 end: row.get(3)?,
                 reported: row.get(4)?,
                 external_id: row.get(5)?,
+                project: row.get(6)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -73,6 +74,7 @@ impl Db for Sqlite {
                 end: row.get(3)?,
                 reported: row.get(4)?,
                 external_id: row.get(5)?,
+                project: row.get(6)?,
             })
         }) {
             Ok(task) => Ok(task),
@@ -96,15 +98,20 @@ impl Db for Sqlite {
         }
     }
 
-    fn add_task(&self, desc: String, external_id: Option<String>) -> Result<(), Error> {
+    fn add_task(
+        &self,
+        project: String,
+        desc: String,
+        external_id: Option<String>,
+    ) -> Result<(), Error> {
         match self.active_task() {
             Ok(_) => Err(Error::ExistActiveTask),
             Err(_) => {
                 let now = Utc::now().to_rfc3339();
                 self.conn
                     .execute(
-                        "INSERT INTO tasks (desc, start, external_id) VALUES (?, ?, ?)",
-                        params![desc, now, Some(external_id)],
+                        "INSERT INTO tasks (project, desc, start, external_id) VALUES (?, ?, ?, ?)",
+                        params![project, desc, now, Some(external_id)],
                     )
                     .unwrap();
                 Ok(())
@@ -119,6 +126,21 @@ impl Db for Sqlite {
                     .execute(
                         "UPDATE tasks SET desc = ? WHERE id = ?",
                         [desc, id.to_string()],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist),
+        }
+    }
+
+    fn change_task_project(&self, id: i64, project: String) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(_) => {
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET project = ? WHERE id = ?",
+                        [project, id.to_string()],
                     )
                     .unwrap();
                 Ok(())
@@ -145,7 +167,7 @@ impl Db for Sqlite {
     fn reopen_id(&self, id: i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
-                self.add_task(task.desc, task.external_id)?;
+                self.add_task(task.project, task.desc, task.external_id)?;
                 Ok(())
             }
             Err(_) => Err(Error::TaskDoesNotExist),
@@ -200,7 +222,8 @@ impl Sqlite {
                     start           INTEGER NOT NULL,
                     end             INTEGER DEFAULT NULL,
                     reported        INTEGER NOT NULL DEFAULT 0,
-                    external_id     TEXT DEFAULT NULL
+                    external_id     TEXT DEFAULT NULL,
+                    project         TEXT NOT NULL
                 )",
                 (),
             )
@@ -215,7 +238,7 @@ impl Sqlite {
     }
 
     fn query_tasks(&self, stmt: &mut Statement, param: Option<String>) -> Vec<Task> {
-        let mut params:Vec<String> = Vec::new();
+        let mut params: Vec<String> = Vec::new();
         if param.is_some() {
             params.push(param.unwrap());
         }
@@ -229,6 +252,7 @@ impl Sqlite {
                     end: row.get(3)?,
                     reported: row.get(4)?,
                     external_id: row.get(5)?,
+                    project: row.get(6)?,
                 })
             })
             .unwrap();
@@ -247,6 +271,10 @@ impl Sqlite {
             (
                 "0.1.1",
                 Some("ALTER TABLE tasks ADD external_id TEXT DEFAULT NULL"),
+            ),
+            (
+                "0.1.2",
+                Some("ALTER TABLE tasks ADD project TEXT NOT NULL DEFAULT ''"),
             ),
         ];
 
