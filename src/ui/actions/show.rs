@@ -142,7 +142,6 @@ impl<'a> Show<'a> {
         table
             .load_preset(UTF8_FULL)
             .set_content_arrangement(ContentArrangement::Dynamic)
-            .set_width(80)
             .set_header(headers);
         table
     }
