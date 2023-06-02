@@ -24,7 +24,7 @@ impl Action for Send {
             }
         }
 
-        println!("\nTotal tasks sent: {total_tasks_sent}");
+        println!("\n{total_tasks_sent} tasks sent");
 
         Show::new(db).today();
     }

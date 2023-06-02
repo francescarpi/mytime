@@ -29,8 +29,8 @@ mytime show --date "2023-05-30"
 Start a new task:
 
 ```bash
-mytime start --desc "My task"
-mytime start -d "My task"
+mytime start --desc "My task" --project "Project 1"
+mytime start -d "My task" -p "Project 1"
 ```
 
 Stop the current active task:
@@ -45,6 +45,9 @@ Modify the description or external ID:
 mytime modify --id 14 --desc "New description"
 mytime modify -i 14 -d "New description"
 mytime modify -i 14 -e "12345"
+mytime modify -i 14 --external_id "12345"
+mytime modify --id --project "Project 2"
+mytime modify -i -p "Project 2"
 ```
 
 Reopen a closed task:
@@ -59,6 +62,12 @@ Set (toggle) if a task has been reported to the tracker app:
 ```bash
 mytime report -i 12
 mytime report --id 12
+```
+
+Send unreported tasks to redmine:
+
+```bash
+mytime send
 ```
 
 ## Database
@@ -76,6 +85,10 @@ touch $HOME/.mytime
 ```ini
 [general]
 db_folder = /Users/foo/Library/CloudStorage/Dropbox/mytime
+
+[redmine]
+url = <YOUR_REDMINE_DOMAIN>
+token = <YOUR_TOKEN>
 
 ```
 
