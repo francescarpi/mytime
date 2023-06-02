@@ -22,17 +22,31 @@ impl<'a> Modify {
             Err(_) => error("There is not any task with this ID!".to_string()),
         };
     }
+
+    fn project(db: &'a dyn Db, id: i64, external_id: String) {
+        match db.change_task_project(id, external_id) {
+            Ok(_) => success("Task updated!".to_string()),
+            Err(_) => error("There is not any task with this ID!".to_string()),
+        };
+    }
 }
 
 impl Action for Modify {
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
+
         if let Some(desc) = sub_m.get_one::<String>("desc") {
             Self::desc(db, id.clone(), desc.clone());
         }
+
         if let Some(external_id) = sub_m.get_one::<String>("external_id") {
             Self::external_id(db, id.clone(), external_id.clone());
         }
+
+        if let Some(project) = sub_m.get_one::<String>("project") {
+            Self::project(db, id.clone(), project.clone());
+        }
+
         Show::new(db).today();
     }
 
@@ -51,18 +65,25 @@ impl Action for Modify {
                     .short('d')
                     .help("Description")
                     .value_parser(clap::value_parser!(String))
-                    .conflicts_with("external_id"),
+                    .conflicts_with_all(&["project", "external_id"]),
+            )
+            .arg(
+                Arg::new("project")
+                    .short('p')
+                    .help("Project name")
+                    .value_parser(clap::value_parser!(String))
+                    .conflicts_with_all(&["desc", "external_id"]),
             )
             .arg(
                 Arg::new("external_id")
                     .short('e')
                     .help("External ID")
                     .value_parser(clap::value_parser!(String))
-                    .conflicts_with("desc"),
+                    .conflicts_with_all(&["project", "desc"]),
             )
             .group(
                 ArgGroup::new("modify")
-                    .args(["desc", "external_id"])
+                    .args(["desc", "external_id", "project"])
                     .required(true),
             )
     }

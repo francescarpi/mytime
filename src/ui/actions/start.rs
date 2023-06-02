@@ -11,9 +11,10 @@ pub struct Start {}
 impl Action for Start {
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let desc = sub_m.get_one::<String>("desc").unwrap();
+        let project = sub_m.get_one::<String>("project").unwrap();
         let external_id = sub_m.get_one::<Option<String>>("desc").unwrap();
 
-        match db.add_task(desc.clone(), external_id.clone()) {
+        match db.add_task(project.clone(), desc.clone(), external_id.clone()) {
             Ok(_) => success("Task added successfully!".to_string()),
             Err(_) => {
                 error("There is another active task. You have to stop it before.".to_string())
@@ -30,6 +31,13 @@ impl Action for Start {
                 Arg::new("desc")
                     .short('d')
                     .help("Description")
+                    .required(true)
+                    .value_parser(clap::value_parser!(String)),
+            )
+            .arg(
+                Arg::new("project")
+                    .short('p')
+                    .help("Project name")
                     .required(true)
                     .value_parser(clap::value_parser!(String)),
             )

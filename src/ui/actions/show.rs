@@ -98,6 +98,7 @@ impl<'a> Show<'a> {
 
             table.add_row(vec![
                 Cell::new(task.id),
+                Cell::new(&task.project),
                 Cell::new(&task.desc),
                 Cell::new(external_id).set_alignment(CellAlignment::Right),
                 Cell::new(start),
@@ -151,6 +152,7 @@ impl<'a> Show<'a> {
             Cell::new("#")
                 .add_attribute(Attribute::Bold)
                 .fg(Color::Green),
+            Cell::new("Project").add_attribute(Attribute::Bold),
             Cell::new("Desc").add_attribute(Attribute::Bold),
             Cell::new("Ext.ID").add_attribute(Attribute::Bold),
             Cell::new("Start").add_attribute(Attribute::Bold),

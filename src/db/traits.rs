@@ -9,9 +9,10 @@ pub trait Db {
     fn active_task(&self) -> Result<Task, Error>;
     fn task(&self, id: i64) -> Result<Task, Error>;
     fn stop_task(&self, id: i64) -> Result<Task, Error>;
-    fn add_task(&self, desc: String, external_id: Option<String>) -> Result<(), Error>;
+    fn add_task(&self, project: String, desc: String, external_id: Option<String>) -> Result<(), Error>;
     fn change_task_desc(&self, id: i64, desc: String) -> Result<(), Error>;
     fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error>;
+    fn change_task_project(&self, id: i64, project: String) -> Result<(), Error>;
     fn reopen_id(&self, id: i64) -> Result<(), Error>;
     fn report_task(&self, id: i64) -> Result<(), Error>;
     fn unreported_tasks(&self) -> Vec<Task>;
