@@ -6,7 +6,7 @@ use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
-use rusqlite::{Connection, Statement};
+use rusqlite::{Connection, Statement, params};
 
 #[derive(Debug)]
 pub struct Sqlite {
@@ -96,13 +96,16 @@ impl Db for Sqlite {
         }
     }
 
-    fn add_task(&self, desc: String) -> Result<(), Error> {
+    fn add_task(&self, desc: String, external_id: Option<String>) -> Result<(), Error> {
         match self.active_task() {
             Ok(_) => Err(Error::ExistActiveTask {}),
             Err(_) => {
                 let now = Utc::now().to_rfc3339();
                 self.conn
-                    .execute("INSERT INTO tasks (desc, start) VALUES (?, ?)", [desc, now])
+                    .execute(
+                        "INSERT INTO tasks (desc, start, external_id) VALUES (?, ?, ?)",
+                        params![desc, now, Some(external_id)],
+                    )
                     .unwrap();
                 Ok(())
             }
@@ -142,7 +145,7 @@ impl Db for Sqlite {
     fn reopen_id(&self, id: i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
-                self.add_task(task.desc)?;
+                self.add_task(task.desc, task.external_id)?;
                 Ok(())
             }
             Err(_) => Err(Error::TaskDoesNotExist {}),
@@ -253,6 +256,7 @@ impl Sqlite {
             }
         }
 
-        conn.execute("UPDATE app SET version = ?", [app_version]).unwrap();
+        conn.execute("UPDATE app SET version = ?", [app_version])
+            .unwrap();
     }
 }
