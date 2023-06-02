@@ -192,7 +192,7 @@ impl Db for Sqlite {
     fn unreported_tasks(&self) -> Vec<Task> {
         let mut stmt = self
             .conn
-            .prepare("SELECT * FROM tasks WHERE end IS NOT NULL AND reported = false")
+            .prepare("SELECT * FROM tasks WHERE end IS NOT NULL AND reported = false AND external_id IS NOT NULL AND external_id != ''")
             .unwrap();
         self.query_tasks(&mut stmt, None)
     }
