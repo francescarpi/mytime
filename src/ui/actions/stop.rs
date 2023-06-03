@@ -13,11 +13,11 @@ impl Action for Stop {
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, _sub_m: &ArgMatches) {
         match db.active_task() {
             Ok(task) => {
-                let task = db.stop_task(task.id).unwrap();
+                let task = db.stop_task(&task.id).unwrap();
 
                 println!("\nTask ID: {}", task.id);
                 println!("Description: {}", task.desc);
-                println!("Duration: {}", format_seconds(task.duration()));
+                println!("Duration: {}", format_seconds(&task.duration()));
 
                 success("Stopped!".to_string());
             }

@@ -14,7 +14,7 @@ pub struct Sqlite {
 }
 
 impl Db for Sqlite {
-    fn day_tasks(&self, day: NaiveDate) -> Vec<Task> {
+    fn day_tasks(&self, day: &NaiveDate) -> Vec<Task> {
         let day = day.format("%Y-%m-%d").to_string();
         let mut stmt = self
             .conn
@@ -23,7 +23,7 @@ impl Db for Sqlite {
         self.query_tasks(&mut stmt, Some(day))
     }
 
-    fn month_tasks(&self, month: u32, year: i32) -> Vec<Task> {
+    fn month_tasks(&self, month: &u32, year: &i32) -> Vec<Task> {
         let year_month = format!("{}-{:02}", year, month);
         let mut stmt = self
             .conn
@@ -32,7 +32,7 @@ impl Db for Sqlite {
         self.query_tasks(&mut stmt, Some(year_month))
     }
 
-    fn week_tasks(&self, week: u32) -> Vec<Task> {
+    fn week_tasks(&self, week: &u32) -> Vec<Task> {
         let mut stmt = self
             .conn
             .prepare("SELECT * FROM tasks WHERE strftime('%W', start) = ? ORDER BY id DESC")
@@ -61,7 +61,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn task(&self, id: i64) -> Result<Task, Error> {
+    fn task(&self, id: &i64) -> Result<Task, Error> {
         let mut stmt = self
             .conn
             .prepare("SELECT * FROM tasks WHERE id = ?")
@@ -82,7 +82,7 @@ impl Db for Sqlite {
         }
     }
 
-    fn stop_task(&self, id: i64) -> Result<Task, Error> {
+    fn stop_task(&self, id: &i64) -> Result<Task, Error> {
         match self.task(id) {
             Ok(task) => {
                 let now = Utc::now().to_rfc3339();
@@ -100,9 +100,9 @@ impl Db for Sqlite {
 
     fn add_task(
         &self,
-        project: String,
-        desc: String,
-        external_id: Option<String>,
+        project: &String,
+        desc: &String,
+        external_id: &Option<String>,
     ) -> Result<(), Error> {
         match self.active_task() {
             Ok(_) => Err(Error::ExistActiveTask),
@@ -119,13 +119,13 @@ impl Db for Sqlite {
         }
     }
 
-    fn change_task_desc(&self, id: i64, desc: String) -> Result<(), Error> {
+    fn change_task_desc(&self, id: &i64, desc: &String) -> Result<(), Error> {
         match self.task(id) {
             Ok(_) => {
                 self.conn
                     .execute(
                         "UPDATE tasks SET desc = ? WHERE id = ?",
-                        [desc, id.to_string()],
+                        [desc, &id.to_string()],
                     )
                     .unwrap();
                 Ok(())
@@ -134,13 +134,13 @@ impl Db for Sqlite {
         }
     }
 
-    fn change_task_project(&self, id: i64, project: String) -> Result<(), Error> {
+    fn change_task_project(&self, id: &i64, project: &String) -> Result<(), Error> {
         match self.task(id) {
             Ok(_) => {
                 self.conn
                     .execute(
                         "UPDATE tasks SET project = ? WHERE id = ?",
-                        [project, id.to_string()],
+                        [project, &id.to_string()],
                     )
                     .unwrap();
                 Ok(())
@@ -149,13 +149,13 @@ impl Db for Sqlite {
         }
     }
 
-    fn change_task_external_id(&self, id: i64, external_id: String) -> Result<(), Error> {
+    fn change_task_external_id(&self, id: &i64, external_id: &String) -> Result<(), Error> {
         match self.task(id) {
             Ok(_) => {
                 self.conn
                     .execute(
                         "UPDATE tasks SET external_id = ? WHERE id = ?",
-                        [external_id, id.to_string()],
+                        [external_id, &id.to_string()],
                     )
                     .unwrap();
                 Ok(())
@@ -164,23 +164,23 @@ impl Db for Sqlite {
         }
     }
 
-    fn reopen_id(&self, id: i64) -> Result<(), Error> {
+    fn reopen_id(&self, id: &i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
-                self.add_task(task.project, task.desc, task.external_id)?;
+                self.add_task(&task.project, &task.desc, &task.external_id)?;
                 Ok(())
             }
             Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
 
-    fn report_task(&self, id: i64) -> Result<(), Error> {
+    fn report_task(&self, id: &i64) -> Result<(), Error> {
         match self.task(id) {
             Ok(task) => {
                 self.conn
                     .execute(
                         "UPDATE tasks SET reported = ? WHERE id = ?",
-                        [!task.reported as i32, id as i32],
+                        params![!task.reported, id],
                     )
                     .unwrap();
                 Ok(())
@@ -200,12 +200,12 @@ impl Db for Sqlite {
 
 impl Sqlite {
     pub fn new(config: &Config) -> Self {
-        let conn = Self::create_db_if_not_exist(config.app_share_path.clone());
+        let conn = Self::create_db_if_not_exist(&config.app_share_path);
         Self::migrate(&conn);
         Self { conn }
     }
 
-    fn create_db_if_not_exist(app_share_path: PathBuf) -> Connection {
+    fn create_db_if_not_exist(app_share_path: &PathBuf) -> Connection {
         let db_path = app_share_path.join("mytime.db");
         let db_path = db_path.to_str().unwrap();
 

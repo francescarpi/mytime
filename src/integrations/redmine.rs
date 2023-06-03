@@ -17,11 +17,11 @@ impl Integration for Redmine {
             return Err(Error::MissingIntegrationParams);
         }
 
-        let url = format!("{}time_entries.json", config.redmine_url.clone().unwrap());
+        let url = format!("{}time_entries.json", &config.redmine_url.as_ref().unwrap());
         let body = json!({
             "time_entry": {
                 "issue_id": task.external_id,
-                "hours": format_seconds(task.duration()),
+                "hours": format_seconds(&task.duration()),
                 "comments": task.desc,
             }
         });
@@ -31,7 +31,7 @@ impl Integration for Redmine {
             .request(Self::prepare_request(
                 &url,
                 &body.to_string(),
-                &config.redmine_token.clone().unwrap(),
+                &config.redmine_token.as_ref().unwrap(),
             ))
             .unwrap();
 

@@ -9,21 +9,21 @@ use crate::ui::traits::Action;
 pub struct Modify {}
 
 impl<'a> Modify {
-    fn desc(db: &'a dyn Db, id: i64, desc: String) {
+    fn desc(db: &'a dyn Db, id: &i64, desc: &String) {
         match db.change_task_desc(id, desc) {
             Ok(_) => success("Task updated!".to_string()),
             Err(_) => error("There is not any task with this ID!".to_string()),
         };
     }
 
-    fn external_id(db: &'a dyn Db, id: i64, external_id: String) {
+    fn external_id(db: &'a dyn Db, id: &i64, external_id: &String) {
         match db.change_task_external_id(id, external_id) {
             Ok(_) => success("Task updated!".to_string()),
             Err(_) => error("There is not any task with this ID!".to_string()),
         };
     }
 
-    fn project(db: &'a dyn Db, id: i64, external_id: String) {
+    fn project(db: &'a dyn Db, id: &i64, external_id: &String) {
         match db.change_task_project(id, external_id) {
             Ok(_) => success("Task updated!".to_string()),
             Err(_) => error("There is not any task with this ID!".to_string()),
@@ -36,15 +36,15 @@ impl Action for Modify {
         let id = sub_m.get_one::<i64>("id").unwrap();
 
         if let Some(desc) = sub_m.get_one::<String>("desc") {
-            Self::desc(db, id.clone(), desc.clone());
+            Self::desc(db, &id, &desc);
         }
 
         if let Some(external_id) = sub_m.get_one::<String>("external_id") {
-            Self::external_id(db, id.clone(), external_id.clone());
+            Self::external_id(db, &id, &external_id);
         }
 
         if let Some(project) = sub_m.get_one::<String>("project") {
-            Self::project(db, id.clone(), project.clone());
+            Self::project(db, &id, &project);
         }
 
         Show::new(db).today();
