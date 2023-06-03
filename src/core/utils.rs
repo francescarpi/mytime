@@ -33,3 +33,11 @@ pub mod display {
         println!("‼️ {msg}");
     }
 }
+
+pub mod dates {
+    use chrono::{DateTime, NaiveDate};
+
+    pub fn to_naive(date: &String) -> NaiveDate {
+        DateTime::parse_from_rfc3339(date).unwrap().date_naive()
+    }
+}

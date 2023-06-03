@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 use crate::core::config::Config;
 use crate::core::task::Task;
+use crate::core::utils::dates::to_naive;
 use crate::core::utils::formatters::{format_date, format_seconds, format_time};
 use crate::db::traits::Db;
 use crate::ui::traits::Action;
@@ -23,7 +24,10 @@ impl<'a> Show<'a> {
         let today = Local::now().date_naive();
         let tasks = self.db.day_tasks(&today);
 
-        println!("\n📅 Today ({})", format_seconds(&self.working_time(&tasks)));
+        println!(
+            "\n📅 Today ({})",
+            format_seconds(&self.working_time(&tasks))
+        );
 
         self.print_tables(&tasks, true);
     }
@@ -41,7 +45,10 @@ impl<'a> Show<'a> {
         let today = Local::now();
         let tasks = self.db.month_tasks(&today.month(), &today.year());
 
-        println!("\n📅 Month ({})", format_seconds(&self.working_time(&tasks)));
+        println!(
+            "\n📅 Month ({})",
+            format_seconds(&self.working_time(&tasks))
+        );
 
         self.print_tables(&tasks, false);
     }
@@ -70,6 +77,8 @@ impl<'a> Show<'a> {
 
     fn print_tasks_table(&self, tasks: &Vec<Task>, show_only_time: bool) {
         let mut table = self.create_new_table(self.tasks_table_headers());
+        let mut previous_day: Option<NaiveDate> = None;
+        let mut daily_time_worked = 0;
 
         for task in tasks {
             let start = if show_only_time {
@@ -90,7 +99,16 @@ impl<'a> Show<'a> {
             };
 
             let reported = if task.reported { "🟢" } else { "🔴" };
-            let external_id = task.external_id.as_ref().unwrap_or(&"".to_string()).to_owned();
+            let external_id = task
+                .external_id
+                .as_ref()
+                .unwrap_or(&"".to_string())
+                .to_owned();
+
+            if previous_day.is_some() && previous_day.unwrap() != to_naive(&task.start) {
+                self.add_daily_time_worked_row(&daily_time_worked, &mut table);
+                daily_time_worked = 0;
+            }
 
             table.add_row(vec![
                 Cell::new(task.id),
@@ -102,9 +120,26 @@ impl<'a> Show<'a> {
                 Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
                 Cell::new(&reported).set_alignment(CellAlignment::Center),
             ]);
+
+            previous_day = Some(to_naive(&task.start));
+            daily_time_worked += task.duration();
         }
+        
+        self.add_daily_time_worked_row(&daily_time_worked, &mut table);
 
         println!("{table}");
+    }
+
+    fn add_daily_time_worked_row(&self, duration: &i64, table: &mut Table) {
+        table.add_row(vec![
+            Cell::new(""),
+            Cell::new(""),
+            Cell::new(""),
+            Cell::new(""),
+            Cell::new(""),
+            Cell::new(""),
+            Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
+        ]);
     }
 
     pub fn print_summary_table(&self, tasks: &Vec<Task>) {
