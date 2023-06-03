@@ -1,12 +1,17 @@
 use oxhttp::model::{Method, Request, Status};
 use oxhttp::Client;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 
 use crate::core::config::Config;
 use crate::core::errors::Error;
 use crate::core::task::Task;
-use crate::integrations::traits::Integration;
 use crate::core::utils::formatters::format_seconds;
+use crate::integrations::traits::Integration;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct RedmineResponse {
+    errors: Vec<String>,
+}
 
 #[derive(Debug)]
 pub struct Redmine {}
@@ -18,7 +23,7 @@ impl Integration for Redmine {
         }
 
         let url = format!("{}time_entries.json", &config.redmine_url.as_ref().unwrap());
-        let body = json!({
+        let body = serde_json::json!({
             "time_entry": {
                 "issue_id": task.external_id,
                 "hours": format_seconds(&task.duration()),
@@ -36,7 +41,9 @@ impl Integration for Redmine {
             .unwrap();
 
         if response.status() != Status::CREATED {
-            return Err(Error::TaskCannotBeenReported);
+            let redmine_response: RedmineResponse =
+                serde_json::from_str(&response.into_body().to_string().unwrap()).unwrap();
+            return Err(Error::TaskCannotBeenReported(String::from(redmine_response.errors.join(", "))));
         }
 
         Ok(())

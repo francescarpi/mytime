@@ -14,3 +14,4 @@ oxhttp = { version = "0.1.6", features = ["native-tls"]}
 rusqlite = "0.29.0"
 rust-ini = "0.19.0"
 serde_json = "1.0.96"
+serde = { version = "1.0", features = ["derive"] }

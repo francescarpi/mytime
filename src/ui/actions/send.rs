@@ -20,7 +20,7 @@ impl Action for Send {
                     success(format!("Task with ID {} sent successfully", task.id));
                     db.report_task(&task.id).unwrap();
                 },
-                Err(_) => error(format!("Error sending task with ID {}", task.id)),
+                Err(e) => error(format!("Task {}. {}.", task.id, e)),
             }
         }
 
