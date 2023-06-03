@@ -18,7 +18,7 @@ impl Action for Send {
                 Ok(_) => {
                     total_tasks_sent += 1;
                     success(format!("Task with ID {} sent successfully", task.id));
-                    db.report_task(task.id).unwrap();
+                    db.report_task(&task.id).unwrap();
                 },
                 Err(_) => error(format!("Error sending task with ID {}", task.id)),
             }

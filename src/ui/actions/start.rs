@@ -14,7 +14,7 @@ impl Action for Start {
         let project = sub_m.get_one::<String>("project").unwrap();
         let external_id = sub_m.get_one::<String>("external_id").map(|value| value.clone());
 
-        match db.add_task(project.clone(), desc.clone(), external_id.clone()) {
+        match db.add_task(&project, &desc, &external_id) {
             Ok(_) => success("Task added successfully!".to_string()),
             Err(_) => {
                 error("There is another active task. You have to stop it before.".to_string())

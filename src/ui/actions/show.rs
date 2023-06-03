@@ -23,7 +23,7 @@ impl<'a> Show<'a> {
         let today = Local::now().date_naive();
         let tasks = self.db.day_tasks(today);
 
-        println!("\n📅 Today ({})", format_seconds(self.working_time(&tasks)));
+        println!("\n📅 Today ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, true);
     }
@@ -32,7 +32,7 @@ impl<'a> Show<'a> {
         let week = Local::now().iso_week().week();
         let tasks = self.db.week_tasks(week);
 
-        println!("\n📅 Week ({})", format_seconds(self.working_time(&tasks)));
+        println!("\n📅 Week ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, false);
     }
@@ -41,7 +41,7 @@ impl<'a> Show<'a> {
         let today = Local::now();
         let tasks = self.db.month_tasks(today.month(), today.year());
 
-        println!("\n📅 Month ({})", format_seconds(self.working_time(&tasks)));
+        println!("\n📅 Month ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, false);
     }
@@ -57,7 +57,7 @@ impl<'a> Show<'a> {
         println!(
             "\n📅 Date {} ({})",
             date.format("%Y-%m-%d"),
-            format_seconds(self.working_time(&tasks))
+            format_seconds(&self.working_time(&tasks))
         );
 
         self.print_tables(&tasks, true);
@@ -73,17 +73,17 @@ impl<'a> Show<'a> {
 
         for task in tasks {
             let start = if show_only_time {
-                format_time(task.start.clone())
+                format_time(&task.start)
             } else {
-                format_date(task.start.clone())
+                format_date(&task.start)
             };
 
             let end = match task.end.clone() {
                 Some(date) => {
                     if show_only_time {
-                        format_time(date)
+                        format_time(&date)
                     } else {
-                        format_date(date)
+                        format_date(&date)
                     }
                 }
                 None => "🏃".to_string(),
@@ -103,7 +103,7 @@ impl<'a> Show<'a> {
                 Cell::new(external_id).set_alignment(CellAlignment::Right),
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
-                Cell::new(format_seconds(task.duration())).set_alignment(CellAlignment::Right),
+                Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
                 Cell::new(&reported).set_alignment(CellAlignment::Center),
             ]);
         }
@@ -123,7 +123,7 @@ impl<'a> Show<'a> {
         }
 
         for (desc, duration) in grouped_tasks {
-            table.add_row(vec![Cell::new(desc), Cell::new(format_seconds(duration))]);
+            table.add_row(vec![Cell::new(desc), Cell::new(format_seconds(&duration))]);
         }
 
         println!("{table}");
