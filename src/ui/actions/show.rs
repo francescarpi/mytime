@@ -21,7 +21,7 @@ impl<'a> Show<'a> {
 
     pub fn today(&self) {
         let today = Local::now().date_naive();
-        let tasks = self.db.day_tasks(today);
+        let tasks = self.db.day_tasks(&today);
 
         println!("\n📅 Today ({})", format_seconds(&self.working_time(&tasks)));
 
@@ -30,7 +30,7 @@ impl<'a> Show<'a> {
 
     pub fn week(&self) {
         let week = Local::now().iso_week().week();
-        let tasks = self.db.week_tasks(week);
+        let tasks = self.db.week_tasks(&week);
 
         println!("\n📅 Week ({})", format_seconds(&self.working_time(&tasks)));
 
@@ -39,20 +39,20 @@ impl<'a> Show<'a> {
 
     pub fn month(&self) {
         let today = Local::now();
-        let tasks = self.db.month_tasks(today.month(), today.year());
+        let tasks = self.db.month_tasks(&today.month(), &today.year());
 
         println!("\n📅 Month ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, false);
     }
 
-    pub fn relative(&self, value: i64) {
+    pub fn relative(&self, value: &i64) {
         let today = Local::now().date_naive();
-        let date = today - Duration::days(value);
-        self.date(date);
+        let date = today - Duration::days(*value);
+        self.date(&date);
     }
 
-    pub fn date(&self, date: NaiveDate) {
+    pub fn date(&self, date: &NaiveDate) {
         let tasks = self.db.day_tasks(date);
         println!(
             "\n📅 Date {} ({})",
@@ -78,7 +78,7 @@ impl<'a> Show<'a> {
                 format_date(&task.start)
             };
 
-            let end = match task.end.clone() {
+            let end = match task.end.as_ref() {
                 Some(date) => {
                     if show_only_time {
                         format_time(&date)
@@ -90,11 +90,7 @@ impl<'a> Show<'a> {
             };
 
             let reported = if task.reported { "🟢" } else { "🔴" };
-
-            let external_id = match task.external_id.clone() {
-                Some(id) => id,
-                None => "".to_string(),
-            };
+            let external_id = task.external_id.as_ref().unwrap_or(&"".to_string()).to_owned();
 
             table.add_row(vec![
                 Cell::new(task.id),
@@ -115,10 +111,10 @@ impl<'a> Show<'a> {
         println!("\n📚 Grouped by description");
 
         let mut table = self.create_new_table(self.summary_table_headers());
-        let mut grouped_tasks: HashMap<String, i64> = HashMap::new();
+        let mut grouped_tasks: HashMap<&String, i64> = HashMap::new();
 
         for task in tasks {
-            let duration_sum = grouped_tasks.entry(task.desc.clone()).or_insert(0);
+            let duration_sum = grouped_tasks.entry(&task.desc).or_insert(0);
             *duration_sum += task.duration();
         }
 
@@ -187,9 +183,9 @@ impl Action for Show<'_> {
                 _ => show.today(),
             };
         } else if let Some(relative) = sub_m.get_one::<i64>("relative") {
-            show.relative(relative.clone());
+            show.relative(relative);
         } else if let Some(date) = sub_m.get_one::<NaiveDate>("date") {
-            show.date(date.clone());
+            show.date(date);
         } else {
             show.today();
         }

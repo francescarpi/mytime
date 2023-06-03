@@ -14,7 +14,7 @@ pub struct Task {
 impl Task {
     pub fn duration(&self) -> i64 {
         let start = DateTime::parse_from_rfc3339(&self.start).unwrap();
-        let end = match self.end.clone() {
+        let end = match self.end.as_ref() {
             Some(end) => DateTime::parse_from_rfc3339(&end)
                 .unwrap()
                 .with_timezone(&Utc),

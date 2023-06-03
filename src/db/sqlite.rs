@@ -14,7 +14,7 @@ pub struct Sqlite {
 }
 
 impl Db for Sqlite {
-    fn day_tasks(&self, day: NaiveDate) -> Vec<Task> {
+    fn day_tasks(&self, day: &NaiveDate) -> Vec<Task> {
         let day = day.format("%Y-%m-%d").to_string();
         let mut stmt = self
             .conn
@@ -23,7 +23,7 @@ impl Db for Sqlite {
         self.query_tasks(&mut stmt, Some(day))
     }
 
-    fn month_tasks(&self, month: u32, year: i32) -> Vec<Task> {
+    fn month_tasks(&self, month: &u32, year: &i32) -> Vec<Task> {
         let year_month = format!("{}-{:02}", year, month);
         let mut stmt = self
             .conn
@@ -32,7 +32,7 @@ impl Db for Sqlite {
         self.query_tasks(&mut stmt, Some(year_month))
     }
 
-    fn week_tasks(&self, week: u32) -> Vec<Task> {
+    fn week_tasks(&self, week: &u32) -> Vec<Task> {
         let mut stmt = self
             .conn
             .prepare("SELECT * FROM tasks WHERE strftime('%W', start) = ? ORDER BY id DESC")
