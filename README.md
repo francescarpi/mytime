@@ -7,22 +7,28 @@ It's used to tracking the working time.
 
 ## Usage
 
-Run `mytime` to show the available commands.
+Execute `mytime --help` to show available commands.
+
+Each argument has its own short version. For instance:
+
+```
+mytime show --period today
+mytime show -p today
+```
+
+In the following example, we are going to use the long version.
 
 Show the tasks table:
 
 ```bash
 mytime show
-mytime show -p today
 mytime show --period today
 mytime show --period week
 mytime show --period month
-mytime show -p month
 
-mytime show -r 1
-mytime show --relative 1 (1 == -1 == yesterday)
+mytime show --relative 1 # (1 == -1 == yesterday)
+mytime show --relative 2 # (day before yesterday)
 
-mytime show -d "2023-05-30"
 mytime show --date "2023-05-30"
 ```
 
@@ -30,7 +36,7 @@ Start a new task:
 
 ```bash
 mytime start --desc "My task" --project "Project 1"
-mytime start -d "My task" -p "Project 1"
+mytime start --desc "My task" --project "Project 1" --external_id "12345"
 ```
 
 Stop the current active task:
@@ -39,28 +45,23 @@ Stop the current active task:
 mytime stop
 ```
 
-Modify the description or external ID:
+Modify a task:
 
 ```bash
 mytime modify --id 14 --desc "New description"
-mytime modify -i 14 -d "New description"
-mytime modify -i 14 -e "12345"
-mytime modify -i 14 --external_id "12345"
-mytime modify --id --project "Project 2"
-mytime modify -i -p "Project 2"
+mytime modify --id 14 --external_id "12345"
+mytime modify --id 14 --project "Project 2"
 ```
 
 Reopen a closed task:
 
 ```bash
 mytime reopen --id 12
-mytime reopen -i 12
 ```
 
-Set (toggle) if a task has been reported to the tracker app:
+Toggle the reported flag. It means that the task has been reported to your own tracking tool, such as redmine or jira.
 
 ```bash
-mytime report -i 12
 mytime report --id 12
 ```
 
@@ -72,11 +73,11 @@ mytime send
 
 ## Database
 
-The first time `mytime` is executed, it creates the folder `$HOME/.local/share/mytime`. It contains a `sqlite3` database (`mytime.db`) to store data.
+By default, the `sqlite3` database is created to here: `$HOME/.local/share/mytime`. You can change the default path through the config file.
 
-## Configure
+## Config file
 
-You can use your own configuration (ini) file and define where store the database.
+Its an  `ini` format file.
 
 ```bash
 touch $HOME/.mytime
@@ -92,9 +93,9 @@ token = <YOUR_TOKEN>
 
 ```
 
-## Compile code
+## Build sources
 
-Download the source code:
+Download source code:
 
 ```
 git clone git@github.com:francescarpi/mytime.git
@@ -107,7 +108,7 @@ cd mytime
 cargo run
 ```
 
-Compile for production:
+For production:
 
 ```
 cargo build --release
