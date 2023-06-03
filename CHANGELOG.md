@@ -2,11 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2023-06-03
+
 ### Added
 
 - Display tasks table
 - Add & stop tasks
-- Change a tasks's title
+- Modify tasks
 - Reopen a previous task
-- Add the integration with Redmine
-- Command to send tasks to redmine
+- Integration with Redmine
