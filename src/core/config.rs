@@ -27,9 +27,7 @@ impl Config {
         Self::create_share_folder_if_not_exist(&final_config.app_share_path.to_str().unwrap());
 
         Self {
-            app_share_path: final_config.app_share_path.clone(),
-            redmine_url: final_config.redmine_url.clone(),
-            redmine_token: final_config.redmine_token.clone(),
+            ..final_config
         }
     }
 
