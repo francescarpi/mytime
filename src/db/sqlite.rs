@@ -6,7 +6,7 @@ use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
-use rusqlite::{params, params_from_iter, Connection, Statement};
+use rusqlite::{params, params_from_iter, Connection, Result, Row, Statement};
 
 #[derive(Debug)]
 pub struct Sqlite {
@@ -45,17 +45,7 @@ impl Db for Sqlite {
             .conn
             .prepare("SELECT * FROM tasks WHERE end IS NULL")
             .unwrap();
-        match stmt.query_row([], |row| {
-            Ok(Task {
-                id: row.get(0)?,
-                desc: row.get(1)?,
-                start: row.get(2)?,
-                end: row.get(3)?,
-                reported: row.get(4)?,
-                external_id: row.get(5)?,
-                project: row.get(6)?,
-            })
-        }) {
+        match stmt.query_row([], |row| self.row_to_task(row)) {
             Ok(task) => Ok(task),
             Err(_) => Err(Error::TaskDoesNotExist),
         }
@@ -66,17 +56,7 @@ impl Db for Sqlite {
             .conn
             .prepare("SELECT * FROM tasks WHERE id = ?")
             .unwrap();
-        match stmt.query_row([id], |row| {
-            Ok(Task {
-                id: row.get(0)?,
-                desc: row.get(1)?,
-                start: row.get(2)?,
-                end: row.get(3)?,
-                reported: row.get(4)?,
-                external_id: row.get(5)?,
-                project: row.get(6)?,
-            })
-        }) {
+        match stmt.query_row([id], |row| self.row_to_task(row)) {
             Ok(task) => Ok(task),
             Err(_) => Err(Error::TaskDoesNotExist),
         }
@@ -205,6 +185,18 @@ impl Sqlite {
         Self { conn }
     }
 
+    fn row_to_task(&self, row: &Row) -> Result<Task> {
+        Ok(Task {
+            id: row.get(0)?,
+            desc: row.get(1)?,
+            start: row.get(2)?,
+            end: row.get(3)?,
+            reported: row.get(4)?,
+            external_id: row.get(5)?,
+            project: row.get(6)?,
+        })
+    }
+
     fn create_db_if_not_exist(app_share_path: &PathBuf) -> Connection {
         let db_path = app_share_path.join("mytime.db");
         let db_path = db_path.to_str().unwrap();
@@ -244,17 +236,7 @@ impl Sqlite {
         }
 
         let rows = stmt
-            .query_map(params_from_iter(params), |row| {
-                Ok(Task {
-                    id: row.get(0)?,
-                    desc: row.get(1)?,
-                    start: row.get(2)?,
-                    end: row.get(3)?,
-                    reported: row.get(4)?,
-                    external_id: row.get(5)?,
-                    project: row.get(6)?,
-                })
-            })
+            .query_map(params_from_iter(params), |row| self.row_to_task(row))
             .unwrap();
 
         let mut tasks: Vec<Task> = Vec::new();
