@@ -3,7 +3,7 @@ use clap::{ArgMatches, Command};
 use crate::core::config::Config;
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
-use crate::integrations::{redmine::Redmine, traits::Integration};
+use crate::integrations::{get_integration, traits::Integration};
 use crate::ui::actions::show::Show;
 use crate::ui::traits::Action;
 
@@ -11,15 +11,16 @@ pub struct Send {}
 
 impl Action for Send {
     fn perform<'a, 'b>(config: &'a Config, db: &'b dyn Db, _sub_m: &ArgMatches) {
+        let redmine = get_integration(&config);
         let mut total_tasks_sent = 0;
         let tasks = db.unreported_tasks();
         for task in tasks {
-            match Redmine::report_task(&config, &task) {
+            match redmine.report_task(&config, &task) {
                 Ok(_) => {
                     total_tasks_sent += 1;
                     success(format!("Task with ID {} sent successfully", task.id));
                     db.report_task(&task.id).unwrap();
-                },
+                }
                 Err(e) => error(format!("Task {}. {}.", task.id, e)),
             }
         }

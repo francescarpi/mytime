@@ -86,6 +86,8 @@ touch $HOME/.mytime
 ```ini
 [general]
 db_folder = /Users/foo/Library/CloudStorage/Dropbox/mytime
+db = sqlite
+integration = redmine
 
 [redmine]
 url = <YOUR_REDMINE_DOMAIN>

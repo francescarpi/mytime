@@ -17,7 +17,7 @@ struct RedmineResponse {
 pub struct Redmine {}
 
 impl Integration for Redmine {
-    fn report_task<'a>(config: &'a Config, task: &Task) -> Result<(), Error> {
+    fn report_task<'a>(&self, config: &'a Config, task: &Task) -> Result<(), Error> {
         if config.redmine_token.is_none() || config.redmine_url.is_none() {
             return Err(Error::MissingIntegrationParams);
         }
@@ -43,7 +43,9 @@ impl Integration for Redmine {
         if response.status() != Status::CREATED {
             let redmine_response: RedmineResponse =
                 serde_json::from_str(&response.into_body().to_string().unwrap()).unwrap();
-            return Err(Error::TaskCannotBeenReported(String::from(redmine_response.errors.join(", "))));
+            return Err(Error::TaskCannotBeenReported(String::from(
+                redmine_response.errors.join(", "),
+            )));
         }
 
         Ok(())
@@ -51,6 +53,10 @@ impl Integration for Redmine {
 }
 
 impl Redmine {
+    pub fn new() -> Self {
+        Self {}
+    }
+
     fn prepare_request(url: &str, body: &str, token: &str) -> Request {
         let mut request =
             Request::builder(Method::POST, url.parse().unwrap()).with_body(body.to_string());
