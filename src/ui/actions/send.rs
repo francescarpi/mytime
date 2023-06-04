@@ -18,7 +18,11 @@ impl Action for Send {
             match redmine.report_task(&config, &task) {
                 Ok(_) => {
                     total_tasks_sent += 1;
-                    success(format!("Task with ID {} sent successfully", task.id));
+                    success(format!(
+                        "Task {}, external ID {}, sent successfully",
+                        task.id,
+                        task.external_id.unwrap()
+                    ));
                     db.report_task(&task.id).unwrap();
                 }
                 Err(e) => error(format!("Task {}. {}.", task.id, e)),
