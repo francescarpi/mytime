@@ -276,6 +276,7 @@ impl Sqlite {
                 "0.1.2",
                 Some("ALTER TABLE tasks ADD project TEXT NOT NULL DEFAULT ''"),
             ),
+            ("0.1.3", None),
         ];
 
         let mut stmt_db_version = conn.prepare("SELECT version FROM app").unwrap();
