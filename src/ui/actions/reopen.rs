@@ -37,6 +37,7 @@ impl Action for Reopen {
         Command::new("reopen").about("Reopen a closed task").arg(
             Arg::new("id")
                 .short('i')
+                .long("id")
                 .help("Task ID")
                 .value_parser(clap::value_parser!(i64))
                 .required(true),

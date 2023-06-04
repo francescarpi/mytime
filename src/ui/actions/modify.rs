@@ -56,6 +56,7 @@ impl Action for Modify {
             .arg(
                 Arg::new("id")
                     .short('i')
+                    .long("id")
                     .help("Task ID")
                     .value_parser(clap::value_parser!(i64))
                     .required(true),
@@ -63,6 +64,7 @@ impl Action for Modify {
             .arg(
                 Arg::new("desc")
                     .short('d')
+                    .long("desc")
                     .help("Description")
                     .value_parser(clap::value_parser!(String))
                     .conflicts_with_all(&["project", "external_id"]),
@@ -70,6 +72,7 @@ impl Action for Modify {
             .arg(
                 Arg::new("project")
                     .short('p')
+                    .long("project")
                     .help("Project name")
                     .value_parser(clap::value_parser!(String))
                     .conflicts_with_all(&["desc", "external_id"]),
@@ -77,6 +80,7 @@ impl Action for Modify {
             .arg(
                 Arg::new("external_id")
                     .short('e')
+                    .long("external_id")
                     .help("External ID")
                     .value_parser(clap::value_parser!(String))
                     .conflicts_with_all(&["project", "desc"]),

@@ -236,12 +236,14 @@ impl Action for Show<'_> {
             .arg(
                 Arg::new("period")
                     .short('p')
+                    .long("period")
                     .conflicts_with_all(&["relative", "date"])
                     .value_parser(["today", "week", "month"]),
             )
             .arg(
                 Arg::new("relative")
                     .short('r')
+                    .long("relative")
                     .conflicts_with_all(&["period", "date"])
                     .help("1 == -1 == yesterday")
                     .value_parser(clap::value_parser!(i64).range(0..=7)),
@@ -249,6 +251,7 @@ impl Action for Show<'_> {
             .arg(
                 Arg::new("date")
                     .short('d')
+                    .long("date")
                     .conflicts_with_all(&["relative", "period"])
                     .value_parser(Self::validate_date)
                     .help("Format: YYYY-MM-DD"),

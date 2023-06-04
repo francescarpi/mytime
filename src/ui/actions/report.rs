@@ -26,6 +26,7 @@ impl Action for Report {
             .arg(
                 Arg::new("id")
                     .short('i')
+                    .long("id")
                     .help("Task ID")
                     .value_parser(clap::value_parser!(i64))
                     .required(true),

@@ -30,6 +30,7 @@ impl Action for Start {
             .arg(
                 Arg::new("desc")
                     .short('d')
+                    .long("desc")
                     .help("Description")
                     .required(true)
                     .value_parser(clap::value_parser!(String)),
@@ -37,6 +38,7 @@ impl Action for Start {
             .arg(
                 Arg::new("project")
                     .short('p')
+                    .long("project")
                     .help("Project name")
                     .required(true)
                     .value_parser(clap::value_parser!(String)),
@@ -44,6 +46,7 @@ impl Action for Start {
             .arg(
                 Arg::new("external_id")
                     .short('e')
+                    .long("external_id")
                     .help("External ID")
                     .default_value(None)
                     .value_parser(clap::value_parser!(String)),
