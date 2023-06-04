@@ -3,7 +3,7 @@ pub mod db;
 pub mod integrations;
 pub mod ui;
 
-use clap::{crate_authors, crate_name, crate_version, Command};
+use clap::{crate_authors, crate_name, crate_version, Command, ColorChoice};
 use ui::traits::Action;
 
 use crate::core::config::Config;
@@ -22,6 +22,7 @@ fn main() {
         .author(crate_authors!())
         .version(crate_version!())
         .about(help(&config))
+        .color(ColorChoice::Always)
         .subcommand(Start::subcomand())
         .subcommand(Stop::subcomand())
         .subcommand(Show::subcomand())
