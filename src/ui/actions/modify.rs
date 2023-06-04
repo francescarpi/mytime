@@ -48,7 +48,6 @@ impl Action for Modify {
         }
 
         let task = db.task(&id).unwrap();
-
         Show::new(db).one_task(task);
     }
 
