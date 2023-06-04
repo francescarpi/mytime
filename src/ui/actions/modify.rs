@@ -47,8 +47,7 @@ impl Action for Modify {
             Self::project(db, &id, &project);
         }
 
-        let task = db.task(&id).unwrap();
-        Show::new(db).one_task(task);
+        Show::new(db).one_task(db.task(&id).unwrap());
     }
 
     fn subcomand() -> Command {

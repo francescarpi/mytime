@@ -17,7 +17,7 @@ impl Action for Report {
             Err(_) => error("There is not any task with this ID!".to_string()),
         };
 
-        Show::new(db).today();
+        Show::new(db).one_task(db.task(&id).unwrap());
     }
 
     fn subcomand() -> Command {
