@@ -3,12 +3,13 @@ name = "mytime"
 version = "0.1.2"
 edition = "2021"
 authors = ["Francesc Arpí Roca"]
+description = "Time tracker made with rust"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.25"
-clap = { version = "4.3.0", features = ["derive"] }
+clap = { version = "4.3.0", features = ["derive", "cargo"] }
 comfy-table = "6.2.0"
 oxhttp = { version = "0.1.6", features = ["native-tls"]}
 rusqlite = "0.29.0"

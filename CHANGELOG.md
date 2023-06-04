@@ -11,6 +11,7 @@
 
 - Show task preview after modify it
 - Allow set db and integration through config file
+- Help improved
 
 ## [0.1.2] - 2023-06-03
 

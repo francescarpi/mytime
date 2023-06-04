@@ -3,7 +3,7 @@ pub mod db;
 pub mod integrations;
 pub mod ui;
 
-use clap::Command;
+use clap::{crate_authors, crate_name, crate_version, Command};
 use ui::traits::Action;
 
 use crate::core::config::Config;
@@ -14,17 +14,14 @@ use crate::ui::actions::{
     stop::Stop,
 };
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
-
 fn main() {
     let config = Config::new();
     let db = get_db(&config);
 
-    let matches = Command::new("mytime")
-        .author(AUTHORS)
-        .version(VERSION) // get from cargo
-        .about("Program to tracker your working time")
+    let matches = Command::new(crate_name!())
+        .author(crate_authors!())
+        .version(crate_version!())
+        .about(help(&config))
         .subcommand(Start::subcomand())
         .subcommand(Stop::subcomand())
         .subcommand(Show::subcomand())
@@ -44,4 +41,15 @@ fn main() {
         Some(("send", sub_m)) => Send::perform(&config, &db, &sub_m),
         _ => Show::new(&db).today(),
     }
+}
+
+fn help(config: &Config) -> String {
+    let desc = env!("CARGO_PKG_DESCRIPTION");
+    format!(
+        "{}\n\nWorking path: {}\nDatabase: {}\nIntegration: {}",
+        desc,
+        config.app_share_path.to_string_lossy(),
+        config.db_type,
+        config.int_type
+    )
 }

@@ -1,5 +1,6 @@
 use ini::Ini;
 use std::collections::HashMap;
+use std::fmt;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
@@ -12,7 +13,6 @@ pub enum DbType {
 pub enum IntegrationType {
     Redmine,
 }
-
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -41,9 +41,7 @@ impl Config {
 
         Self::create_share_folder_if_not_exist(&final_config.app_share_path.to_str().unwrap());
 
-        Self {
-            ..final_config
-        }
+        Self { ..final_config }
     }
 
     fn load_config_file(home_path: &str) -> ConfigFile {
@@ -115,9 +113,15 @@ impl Config {
                 .clone()
                 .unwrap_or(default.app_share_path.clone()),
             redmine_url: from_ini.redmine_url.clone().or(default.redmine_url.clone()),
-            redmine_token: from_ini.redmine_token.clone().or(default.redmine_token.clone()),
+            redmine_token: from_ini
+                .redmine_token
+                .clone()
+                .or(default.redmine_token.clone()),
             db_type: from_ini.db_type.clone().unwrap_or(default.db_type.clone()),
-            int_type: from_ini.int_type.clone().unwrap_or(default.int_type.clone()),
+            int_type: from_ini
+                .int_type
+                .clone()
+                .unwrap_or(default.int_type.clone()),
         }
     }
 
@@ -143,6 +147,22 @@ impl IntegrationType {
         match value.to_lowercase().as_str() {
             "redmine" => Some(IntegrationType::Redmine),
             _ => None,
+        }
+    }
+}
+
+impl fmt::Display for DbType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            DbType::Sqlite => write!(f, "SQlite"),
+        }
+    }
+}
+
+impl fmt::Display for IntegrationType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            IntegrationType::Redmine => write!(f, "Redmine"),
         }
     }
 }
