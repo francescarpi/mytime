@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2023-06-04
+
 ### Changed
 
 - An error message is displayed when the report task to redmine fails
