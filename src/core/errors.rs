@@ -13,7 +13,7 @@ impl fmt::Display for Error {
         match self {
             Error::TaskDoesNotExist => write!(f, "Task does not exist"),
             Error::ExistActiveTask => write!(f, "Exists an active task"),
-            Error::TaskCannotBeenReported(reason) => write!(f, "Task cannot be reported: {}", reason),
+            Error::TaskCannotBeenReported(reason) => write!(f, "Task cannot been reported: {}", reason),
             Error::MissingIntegrationParams => write!(f, "Missing integration configuration")
         }
     }
