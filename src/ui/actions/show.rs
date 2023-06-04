@@ -70,6 +70,10 @@ impl<'a> Show<'a> {
         self.print_tables(&tasks, true);
     }
 
+    pub fn one_task(&self, task: Task) {
+        self.print_tasks_table(&vec![task], false);
+    }
+
     fn print_tables(&self, tasks: &Vec<Task>, show_only_time: bool) {
         self.print_tasks_table(&tasks, show_only_time);
         self.print_summary_table(&tasks);
