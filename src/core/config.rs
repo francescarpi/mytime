@@ -21,6 +21,7 @@ pub struct Config {
     pub redmine_token: Option<String>,
     pub db_type: DbType,
     pub int_type: IntegrationType,
+    pub ini_file_present: bool,
 }
 
 #[derive(Debug)]
@@ -30,6 +31,7 @@ struct ConfigFile {
     pub redmine_token: Option<String>,
     pub db_type: Option<DbType>,
     pub int_type: Option<IntegrationType>,
+    pub ini_file_present: bool,
 }
 
 impl Config {
@@ -83,6 +85,7 @@ impl Config {
                     redmine_token,
                     db_type,
                     int_type,
+                    ini_file_present: true,
                 }
             }
             Err(_) => ConfigFile {
@@ -91,6 +94,7 @@ impl Config {
                 redmine_token: None,
                 db_type: None,
                 int_type: None,
+                ini_file_present: false,
             },
         }
     }
@@ -103,6 +107,7 @@ impl Config {
             redmine_token: None,
             db_type: DbType::Sqlite,
             int_type: IntegrationType::Redmine,
+            ini_file_present: false,
         }
     }
 
@@ -122,6 +127,7 @@ impl Config {
                 .int_type
                 .clone()
                 .unwrap_or(default.int_type.clone()),
+            ini_file_present: from_ini.ini_file_present,
         }
     }
 

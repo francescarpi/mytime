@@ -46,8 +46,9 @@ fn main() {
 fn help(config: &Config) -> String {
     let desc = env!("CARGO_PKG_DESCRIPTION");
     format!(
-        "{}\n\nWorking path: {}\nDatabase: {}\nIntegration: {}",
+        "{}\n\nConfig file present: {}\nWorking path: {}\nDatabase: {}\nIntegration: {}",
         desc,
+        config.ini_file_present,
         config.app_share_path.to_string_lossy(),
         config.db_type,
         config.int_type

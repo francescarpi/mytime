@@ -3,7 +3,7 @@ name = "mytime"
 version = "0.1.2"
 edition = "2021"
 authors = ["Francesc Arpí Roca"]
-description = "Time tracker made with rust"
+description = "Time tracker made with rust."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
