@@ -7,7 +7,7 @@ use clap::Command;
 use ui::traits::Action;
 
 use crate::core::config::Config;
-use crate::db::sqlite::Sqlite;
+use crate::db::get_db;
 
 use crate::ui::actions::{
     modify::Modify, reopen::Reopen, report::Report, send::Send, show::Show, start::Start,
@@ -19,7 +19,7 @@ const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 fn main() {
     let config = Config::new();
-    let db = Sqlite::new(&config);
+    let db = get_db(&config);
 
     let matches = Command::new("mytime")
         .author(AUTHORS)
