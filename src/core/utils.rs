@@ -7,11 +7,11 @@ pub mod formatters {
         format!("{}h{}m", hours, minutes)
     }
 
-    pub fn format_date(date_time: &String) -> String {
+    pub fn format_datetime(date_time: &String) -> String {
         DateTime::parse_from_rfc3339(&date_time)
             .unwrap()
             .with_timezone(&Local)
-            .format("%Y-%m-%d %H:%M")
+            .format("%a %b %d %H:%M")
             .to_string()
     }
 

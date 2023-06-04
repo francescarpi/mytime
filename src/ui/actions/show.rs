@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use crate::core::config::Config;
 use crate::core::task::Task;
 use crate::core::utils::dates::to_naive;
-use crate::core::utils::formatters::{format_date, format_seconds, format_time};
+use crate::core::utils::formatters::{format_datetime, format_seconds, format_time};
 use crate::db::traits::Db;
 use crate::ui::traits::Action;
 
@@ -62,8 +62,8 @@ impl<'a> Show<'a> {
     pub fn date(&self, date: &NaiveDate) {
         let tasks = self.db.day_tasks(date);
         println!(
-            "\n📅 Date {} ({})",
-            date.format("%Y-%m-%d"),
+            "\n📅 {} ({})",
+            date.format("%a %b %d"),
             format_seconds(&self.working_time(&tasks))
         );
 
@@ -88,7 +88,7 @@ impl<'a> Show<'a> {
             let start = if show_only_time {
                 format_time(&task.start)
             } else {
-                format_date(&task.start)
+                format_datetime(&task.start)
             };
 
             let end = match task.end.as_ref() {
@@ -96,7 +96,7 @@ impl<'a> Show<'a> {
                     if show_only_time {
                         format_time(&date)
                     } else {
-                        format_date(&date)
+                        format_datetime(&date)
                     }
                 }
                 None => "🏃".to_string(),

@@ -5,6 +5,7 @@
 ### Changed
 
 - An error message is displayed when the report task to redmine fails
+- Date format. Now it shows the week day
 
 ### Added
 
