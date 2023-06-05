@@ -1,6 +1,6 @@
 use chrono::{Datelike, Duration, Local, NaiveDate};
 use clap::{Arg, ArgMatches, Command};
-use comfy_table::presets::UTF8_FULL;
+use comfy_table::presets::{NOTHING, UTF8_FULL};
 use comfy_table::*;
 use std::collections::HashMap;
 
@@ -128,7 +128,7 @@ impl<'a> Show<'a> {
             previous_day = Some(to_naive(&task.start));
             daily_time_worked += task.duration();
         }
-        
+
         self.add_daily_time_worked_row(&daily_time_worked, &mut table);
 
         println!("{table}");
@@ -147,21 +147,45 @@ impl<'a> Show<'a> {
     }
 
     pub fn print_summary_table(&self, tasks: &Vec<Task>) {
-        println!("\n📚 Grouped by description");
+        let mut container = Table::new();
 
-        let mut table = self.create_new_table(self.summary_table_headers());
-        let mut grouped_tasks: HashMap<&String, i64> = HashMap::new();
+        container.load_preset(NOTHING).set_header(vec![
+            Cell::new("📚 Grouped by description"),
+            Cell::new("📚 Grouped by project"),
+        ]);
+
+        container.column_mut(0).unwrap().set_padding((0, 0));
+        container.column_mut(1).unwrap().set_padding((3, 0));
+
+        let mut table_group_by_desc =
+            self.create_new_table(vec![Cell::new("Desc"), Cell::new("Duration")]);
+
+        let mut table_group_by_proj =
+            self.create_new_table(vec![Cell::new("Project"), Cell::new("Duration")]);
+
+        let mut grouped_by_desc: HashMap<&String, i64> = HashMap::new();
+        let mut grouped_by_proj: HashMap<&String, i64> = HashMap::new();
 
         for task in tasks {
-            let duration_sum = grouped_tasks.entry(&task.desc).or_insert(0);
-            *duration_sum += task.duration();
+            let duration_desc = grouped_by_desc.entry(&task.desc).or_insert(0);
+            let duration_proj = grouped_by_proj.entry(&task.project).or_insert(0);
+            *duration_desc += task.duration();
+            *duration_proj += task.duration();
         }
 
-        for (desc, duration) in grouped_tasks {
-            table.add_row(vec![Cell::new(desc), Cell::new(format_seconds(&duration))]);
+        for (desc, duration) in grouped_by_desc {
+            table_group_by_desc
+                .add_row(vec![Cell::new(desc), Cell::new(format_seconds(&duration))]);
         }
 
-        println!("{table}");
+        for (proj, duration) in grouped_by_proj {
+            table_group_by_proj
+                .add_row(vec![Cell::new(proj), Cell::new(format_seconds(&duration))]);
+        }
+
+        container.add_row(vec![table_group_by_desc, table_group_by_proj]);
+
+        println!("{container}");
     }
 
     pub fn working_time(&self, tasks: &Vec<Task>) -> i64 {
@@ -183,23 +207,14 @@ impl<'a> Show<'a> {
 
     fn tasks_table_headers(&self) -> Vec<Cell> {
         vec![
-            Cell::new("#")
-                .add_attribute(Attribute::Bold)
-                .fg(Color::Green),
-            Cell::new("Project").add_attribute(Attribute::Bold),
-            Cell::new("Desc").add_attribute(Attribute::Bold),
-            Cell::new("Ext.ID").add_attribute(Attribute::Bold),
-            Cell::new("Start").add_attribute(Attribute::Bold),
-            Cell::new("End").add_attribute(Attribute::Bold),
-            Cell::new("Duration").add_attribute(Attribute::Bold),
-            Cell::new("Reported").add_attribute(Attribute::Bold),
-        ]
-    }
-
-    fn summary_table_headers(&self) -> Vec<Cell> {
-        vec![
-            Cell::new("Desc").add_attribute(Attribute::Bold),
-            Cell::new("Duration").add_attribute(Attribute::Bold),
+            Cell::new("#").fg(Color::Green),
+            Cell::new("Project"),
+            Cell::new("Desc"),
+            Cell::new("Ext.ID"),
+            Cell::new("Start"),
+            Cell::new("End"),
+            Cell::new("Duration"),
+            Cell::new("Reported"),
         ]
     }
 

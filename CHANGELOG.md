@@ -6,6 +6,10 @@
 
 - Display external ID in the log once a task has been sent
 
+### Added
+
+- Add a new table grouping tasks by project
+
 ## [0.1.3] - 2023-06-04
 
 ### Changed
