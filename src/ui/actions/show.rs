@@ -158,7 +158,7 @@ impl<'a> Show<'a> {
         container.column_mut(1).unwrap().set_padding((3, 0));
 
         let mut table_group_by_desc =
-            self.create_new_table(vec![Cell::new("Desc"), Cell::new("Duration")]);
+            self.create_new_table(vec![Cell::new("Description"), Cell::new("Duration")]);
 
         let mut table_group_by_proj =
             self.create_new_table(vec![Cell::new("Project"), Cell::new("Duration")]);
@@ -209,7 +209,7 @@ impl<'a> Show<'a> {
         vec![
             Cell::new("#").fg(Color::Green),
             Cell::new("Project"),
-            Cell::new("Desc"),
+            Cell::new("Description"),
             Cell::new("Ext.ID"),
             Cell::new("Start"),
             Cell::new("End"),
