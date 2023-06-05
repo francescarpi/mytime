@@ -174,13 +174,17 @@ impl<'a> Show<'a> {
         }
 
         for (desc, duration) in grouped_by_desc {
-            table_group_by_desc
-                .add_row(vec![Cell::new(desc), Cell::new(format_seconds(&duration))]);
+            table_group_by_desc.add_row(vec![
+                Cell::new(desc),
+                Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
+            ]);
         }
 
         for (proj, duration) in grouped_by_proj {
-            table_group_by_proj
-                .add_row(vec![Cell::new(proj), Cell::new(format_seconds(&duration))]);
+            table_group_by_proj.add_row(vec![
+                Cell::new(proj),
+                Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
+            ]);
         }
 
         container.add_row(vec![table_group_by_desc, table_group_by_proj]);
