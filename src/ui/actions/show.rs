@@ -24,10 +24,7 @@ impl<'a> Show<'a> {
         let today = Local::now().date_naive();
         let tasks = self.db.day_tasks(&today);
 
-        println!(
-            "\n📅 Today ({})",
-            format_seconds(&self.working_time(&tasks))
-        );
+        println!("📅 Today ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, true);
     }
@@ -36,7 +33,7 @@ impl<'a> Show<'a> {
         let week = Local::now().iso_week().week();
         let tasks = self.db.week_tasks(&week);
 
-        println!("\n📅 Week ({})", format_seconds(&self.working_time(&tasks)));
+        println!("📅 Week ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, false);
     }
@@ -45,10 +42,7 @@ impl<'a> Show<'a> {
         let today = Local::now();
         let tasks = self.db.month_tasks(&today.month(), &today.year());
 
-        println!(
-            "\n📅 Month ({})",
-            format_seconds(&self.working_time(&tasks))
-        );
+        println!("📅 Month ({})", format_seconds(&self.working_time(&tasks)));
 
         self.print_tables(&tasks, false);
     }
@@ -62,7 +56,7 @@ impl<'a> Show<'a> {
     pub fn date(&self, date: &NaiveDate) {
         let tasks = self.db.day_tasks(date);
         println!(
-            "\n📅 {} ({})",
+            "📅 {} ({})",
             date.format("%a %b %d"),
             format_seconds(&self.working_time(&tasks))
         );
