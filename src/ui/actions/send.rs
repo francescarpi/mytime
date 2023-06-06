@@ -10,6 +10,8 @@ use crate::ui::traits::Action;
 pub struct Send {}
 
 impl Action for Send {
+    const NAME: &'static str = "send";
+
     fn perform<'a, 'b>(config: &'a Config, db: &'b dyn Db, _sub_m: &ArgMatches) {
         let redmine = get_integration(&config);
         let mut total_tasks_sent = 0;
@@ -35,6 +37,7 @@ impl Action for Send {
     }
 
     fn subcomand() -> Command {
-        Command::new("send").about("Send unreported and finished tasks to the active integration")
+        Command::new(Self::NAME)
+            .about("Send unreported and finished tasks to the active integration")
     }
 }
