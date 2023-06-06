@@ -22,6 +22,13 @@ pub mod formatters {
             .format("%H:%M")
             .to_string()
     }
+
+    pub fn string_to_date(date: &String) -> String {
+        DateTime::parse_from_rfc3339(&date)
+            .unwrap()
+            .with_timezone(&Local)
+            .to_string()
+    }
 }
 
 pub mod display {

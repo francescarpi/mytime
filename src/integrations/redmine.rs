@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::config::Config;
 use crate::core::errors::Error;
 use crate::core::task::Task;
-use crate::core::utils::formatters::format_seconds;
+use crate::core::utils::formatters::{format_seconds, string_to_date};
 use crate::integrations::traits::Integration;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,6 +28,7 @@ impl Integration for Redmine {
                 "issue_id": task.external_id,
                 "hours": format_seconds(&task.duration()),
                 "comments": task.desc,
+                "spent_on": string_to_date(&task.start),
             }
         });
 
