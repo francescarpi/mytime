@@ -27,6 +27,7 @@ pub mod formatters {
         DateTime::parse_from_rfc3339(&date)
             .unwrap()
             .with_timezone(&Local)
+            .format("%Y-%m-%d")
             .to_string()
     }
 }
