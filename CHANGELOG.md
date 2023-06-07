@@ -5,6 +5,7 @@
 ### Changed
 
 - Display external ID in the log once a task has been sent
+- Content of column reported. Before was an icon and now it's just colored text.
 
 ### Added
 

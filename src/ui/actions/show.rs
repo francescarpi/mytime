@@ -96,7 +96,8 @@ impl<'a> Show<'a> {
                 None => "🏃".to_string(),
             };
 
-            let reported = if task.reported { "🟢" } else { "🔴" };
+            let reported = if task.reported { "Yes" } else { "No" };
+            let reported_color = if task.reported { Color::Green } else { Color::Red };
             let external_id = task
                 .external_id
                 .as_ref()
@@ -116,7 +117,7 @@ impl<'a> Show<'a> {
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
-                Cell::new(&reported).set_alignment(CellAlignment::Center),
+                Cell::new(&reported).fg(reported_color).set_alignment(CellAlignment::Center),
             ]);
 
             previous_day = Some(to_naive(&task.start));
