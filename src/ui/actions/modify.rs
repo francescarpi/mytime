@@ -32,6 +32,8 @@ impl<'a> Modify {
 }
 
 impl Action for Modify {
+    const NAME: &'static str = "modify";
+
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
 
@@ -51,7 +53,7 @@ impl Action for Modify {
     }
 
     fn subcomand() -> Command {
-        Command::new("modify")
+        Command::new(Self::NAME)
             .about("Modify a task's description")
             .arg(
                 Arg::new("id")

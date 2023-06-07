@@ -225,6 +225,8 @@ impl<'a> Show<'a> {
 }
 
 impl Action for Show<'_> {
+    const NAME: &'static str = "show";
+
     fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let show = Show::new(db);
         if let Some(period) = sub_m.get_one::<String>("period") {
@@ -244,7 +246,7 @@ impl Action for Show<'_> {
     }
 
     fn subcomand() -> Command {
-        Command::new("show")
+        Command::new(Self::NAME)
             .about("Display the tasks table")
             .arg(
                 Arg::new("period")

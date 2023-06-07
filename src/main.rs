@@ -3,7 +3,7 @@ pub mod db;
 pub mod integrations;
 pub mod ui;
 
-use clap::{crate_authors, crate_name, crate_version, Command, ColorChoice};
+use clap::{crate_authors, crate_name, crate_version, ColorChoice, Command};
 use ui::traits::Action;
 
 use crate::core::config::Config;
@@ -33,13 +33,13 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        Some(("start", sub_m)) => Start::perform(&config, &db, &sub_m),
-        Some(("stop", sub_m)) => Stop::perform(&config, &db, &sub_m),
-        Some(("modify", sub_m)) => Modify::perform(&config, &db, &sub_m),
-        Some(("reopen", sub_m)) => Reopen::perform(&config, &db, &sub_m),
-        Some(("show", sub_m)) => Show::perform(&config, &db, &sub_m),
-        Some(("report", sub_m)) => Report::perform(&config, &db, &sub_m),
-        Some(("send", sub_m)) => Send::perform(&config, &db, &sub_m),
+        Some((Start::NAME, sub_m)) => Start::perform(&config, &db, &sub_m),
+        Some((Stop::NAME, sub_m)) => Stop::perform(&config, &db, &sub_m),
+        Some((Modify::NAME, sub_m)) => Modify::perform(&config, &db, &sub_m),
+        Some((Reopen::NAME, sub_m)) => Reopen::perform(&config, &db, &sub_m),
+        Some((Show::NAME, sub_m)) => Show::perform(&config, &db, &sub_m),
+        Some((Report::NAME, sub_m)) => Report::perform(&config, &db, &sub_m),
+        Some((Send::NAME, sub_m)) => Send::perform(&config, &db, &sub_m),
         _ => Show::new(&db).today(),
     }
 }

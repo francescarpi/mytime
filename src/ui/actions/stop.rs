@@ -10,6 +10,8 @@ use crate::ui::traits::Action;
 pub struct Stop {}
 
 impl Action for Stop {
+    const NAME: &'static str = "stop";
+
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, _sub_m: &ArgMatches) {
         match db.active_task() {
             Ok(task) => {
@@ -27,6 +29,6 @@ impl Action for Stop {
     }
 
     fn subcomand() -> Command {
-        Command::new("stop").about("Stop de active task")
+        Command::new(Self::NAME).about("Stop de active task")
     }
 }

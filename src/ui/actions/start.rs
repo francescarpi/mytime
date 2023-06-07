@@ -9,10 +9,14 @@ use crate::ui::traits::Action;
 pub struct Start {}
 
 impl Action for Start {
+    const NAME: &'static str = "start";
+
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let desc = sub_m.get_one::<String>("desc").unwrap();
         let project = sub_m.get_one::<String>("project").unwrap();
-        let external_id = sub_m.get_one::<String>("external_id").map(|value| value.clone());
+        let external_id = sub_m
+            .get_one::<String>("external_id")
+            .map(|value| value.clone());
 
         match db.add_task(&project, &desc, &external_id) {
             Ok(_) => success("Task added successfully!".to_string()),
@@ -25,7 +29,7 @@ impl Action for Start {
     }
 
     fn subcomand() -> Command {
-        Command::new("start")
+        Command::new(Self::NAME)
             .about("Start a new task")
             .arg(
                 Arg::new("desc")

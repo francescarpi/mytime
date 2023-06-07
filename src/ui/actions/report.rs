@@ -9,6 +9,8 @@ use crate::ui::traits::Action;
 pub struct Report {}
 
 impl Action for Report {
+    const NAME: &'static str = "report";
+
     fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
 
@@ -21,7 +23,7 @@ impl Action for Report {
     }
 
     fn subcomand() -> Command {
-        Command::new("report")
+        Command::new(Self::NAME)
             .about("Marks manually a task as a reported (toggle)")
             .arg(
                 Arg::new("id")
