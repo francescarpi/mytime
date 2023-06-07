@@ -1,6 +1,6 @@
 use chrono::{Datelike, Duration, Local, NaiveDate};
 use clap::{Arg, ArgMatches, Command};
-use comfy_table::presets::{NOTHING, UTF8_FULL};
+use comfy_table::presets::{NOTHING, UTF8_FULL_CONDENSED};
 use comfy_table::*;
 use std::collections::HashMap;
 
@@ -97,7 +97,11 @@ impl<'a> Show<'a> {
             };
 
             let reported = if task.reported { "Yes" } else { "No" };
-            let reported_color = if task.reported { Color::Green } else { Color::Red };
+            let reported_color = if task.reported {
+                Color::Green
+            } else {
+                Color::Red
+            };
             let external_id = task
                 .external_id
                 .as_ref()
@@ -110,14 +114,16 @@ impl<'a> Show<'a> {
             }
 
             table.add_row(vec![
-                Cell::new(task.id),
+                Cell::new(task.id).set_alignment(CellAlignment::Right),
                 Cell::new(&task.project),
                 Cell::new(&task.desc),
                 Cell::new(external_id).set_alignment(CellAlignment::Right),
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
-                Cell::new(&reported).fg(reported_color).set_alignment(CellAlignment::Center),
+                Cell::new(&reported)
+                    .fg(reported_color)
+                    .set_alignment(CellAlignment::Center),
             ]);
 
             previous_day = Some(to_naive(&task.start));
@@ -198,7 +204,7 @@ impl<'a> Show<'a> {
     fn create_new_table(&self, headers: Vec<Cell>) -> Table {
         let mut table = Table::new();
         table
-            .load_preset(UTF8_FULL)
+            .load_preset(UTF8_FULL_CONDENSED)
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_header(headers);
         table
