@@ -38,6 +38,6 @@ impl Action for Send {
 
     fn subcomand() -> Command {
         Command::new(Self::NAME)
-            .about("Send unreported and finished tasks to the active integration")
+            .about("Send a unreported tasks to the configured integration")
     }
 }

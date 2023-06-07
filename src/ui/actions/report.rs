@@ -24,7 +24,7 @@ impl Action for Report {
 
     fn subcomand() -> Command {
         Command::new(Self::NAME)
-            .about("Marks manually a task as a reported (toggle)")
+            .about("Mark manually a task as a reported")
             .arg(
                 Arg::new("id")
                     .short('i')

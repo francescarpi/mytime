@@ -29,6 +29,6 @@ impl Action for Stop {
     }
 
     fn subcomand() -> Command {
-        Command::new(Self::NAME).about("Stop de active task")
+        Command::new(Self::NAME).about("Stop the active task")
     }
 }

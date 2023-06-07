@@ -54,7 +54,7 @@ impl Action for Modify {
 
     fn subcomand() -> Command {
         Command::new(Self::NAME)
-            .about("Modify a task's description")
+            .about("Modify a task")
             .arg(
                 Arg::new("id")
                     .short('i')
