@@ -116,7 +116,7 @@ impl<'a> Show<'a> {
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
-                Cell::new("·").set_alignment(CellAlignment::Center).fg(reported_color),
+                Cell::new("●").set_alignment(CellAlignment::Center).fg(reported_color),
             ]);
 
             previous_day = Some(to_naive(&task.start));
