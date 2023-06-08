@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::config::Config;
 use crate::core::errors::Error;
-use crate::core::task::Task;
-use crate::core::utils::formatters::{format_seconds, string_to_date};
+use crate::core::utils::formatters::format_seconds;
 use crate::integrations::traits::Integration;
+use crate::integrations::IntegrationTask;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct RedmineResponse {
@@ -17,7 +17,7 @@ struct RedmineResponse {
 pub struct Redmine {}
 
 impl Integration for Redmine {
-    fn report_task<'a>(&self, config: &'a Config, task: &Task) -> Result<(), Error> {
+    fn report_task<'a>(&self, config: &'a Config, task: &IntegrationTask) -> Result<(), Error> {
         if config.redmine_token.is_none() || config.redmine_url.is_none() {
             return Err(Error::MissingIntegrationParams);
         }
@@ -25,10 +25,10 @@ impl Integration for Redmine {
         let url = format!("{}time_entries.json", &config.redmine_url.as_ref().unwrap());
         let body = serde_json::json!({
             "time_entry": {
-                "issue_id": task.external_id,
-                "hours": format_seconds(&task.duration()),
-                "comments": task.desc,
-                "spent_on": string_to_date(&task.start),
+                "issue_id": &task.external_id,
+                "hours": format_seconds(&task.duration),
+                "comments": &task.desc,
+                "spent_on": &task.start,
             }
         });
 
