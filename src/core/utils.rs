@@ -82,6 +82,19 @@ pub mod grouper {
             grouped_task.ids_used.push(task.id);
         }
 
-        group.into_iter().map(|(_k, task)| task).collect()
+        let mut tasks: Vec<IntegrationTask> = group.into_iter().map(|(_k, task)| task).collect();
+        tasks.sort();
+        tasks
+    }
+
+    pub fn group_by_project(tasks: &Vec<Task>) -> HashMap<&String, i64> {
+        let mut group: HashMap<&String, i64> = HashMap::new();
+
+        for task in tasks {
+            let duration = group.entry(&task.project).or_insert(0);
+            *duration += task.duration();
+        }
+
+        group
     }
 }

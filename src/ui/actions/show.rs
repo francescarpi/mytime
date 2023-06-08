@@ -2,12 +2,12 @@ use chrono::{Datelike, Duration, Local, NaiveDate};
 use clap::{Arg, ArgMatches, Command};
 use comfy_table::presets::{NOTHING, UTF8_FULL_CONDENSED};
 use comfy_table::*;
-use std::collections::HashMap;
 
 use crate::core::config::Config;
 use crate::core::task::Task;
 use crate::core::utils::dates::to_naive;
 use crate::core::utils::formatters::{format_datetime, format_seconds, format_time};
+use crate::core::utils::grouper::{group_by_project, group_tasks_for_the_integration};
 use crate::db::traits::Db;
 use crate::ui::traits::Action;
 
@@ -96,7 +96,11 @@ impl<'a> Show<'a> {
                 None => "🏃".to_string(),
             };
 
-            let reported_color = if task.reported { Color::Green } else { Color::Red };
+            let reported_color = if task.reported {
+                Color::Green
+            } else {
+                Color::Red
+            };
             let external_id = task
                 .external_id
                 .as_ref()
@@ -116,7 +120,9 @@ impl<'a> Show<'a> {
                 Cell::new(start),
                 Cell::new(end).set_alignment(CellAlignment::Center),
                 Cell::new(format_seconds(&task.duration())).set_alignment(CellAlignment::Right),
-                Cell::new("●").set_alignment(CellAlignment::Center).fg(reported_color),
+                Cell::new("●")
+                    .set_alignment(CellAlignment::Center)
+                    .fg(reported_color),
             ]);
 
             previous_day = Some(to_naive(&task.start));
@@ -159,31 +165,25 @@ impl<'a> Show<'a> {
         let mut table_group_by_proj =
             self.create_new_table(vec![Cell::new("Project"), Cell::new("Duration")]);
 
-        let mut grouped_by_desc: HashMap<&String, i64> = HashMap::new();
-        let mut grouped_by_proj: HashMap<&String, i64> = HashMap::new();
-
-        for task in tasks {
-            let duration_desc = grouped_by_desc.entry(&task.desc).or_insert(0);
-            let duration_proj = grouped_by_proj.entry(&task.project).or_insert(0);
-            *duration_desc += task.duration();
-            *duration_proj += task.duration();
+        let tasks_by_desc = group_tasks_for_the_integration(&tasks);
+        for task in tasks_by_desc {
+            table_group_by_desc.add_row(vec![
+                Cell::new(&task.desc),
+                Cell::new(format_seconds(&task.duration)).set_alignment(CellAlignment::Right),
+            ]);
         }
 
-        self.add_rows_in_summary_table(&mut table_group_by_desc, &grouped_by_desc);
-        self.add_rows_in_summary_table(&mut table_group_by_proj, &grouped_by_proj);
+        let tasks_by_project = group_by_project(&tasks);
+        for (project, duration) in tasks_by_project {
+            table_group_by_proj.add_row(vec![
+                Cell::new(project),
+                Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
+            ]);
+        }
 
         container.add_row(vec![table_group_by_desc, table_group_by_proj]);
 
         println!("{container}");
-    }
-
-    fn add_rows_in_summary_table(&self, table: &mut Table, rows: &HashMap<&String, i64>) {
-        for (key, value) in rows {
-            table.add_row(vec![
-                Cell::new(key),
-                Cell::new(format_seconds(&value)).set_alignment(CellAlignment::Right),
-            ]);
-        }
     }
 
     pub fn working_time(&self, tasks: &Vec<Task>) -> i64 {
@@ -212,7 +212,7 @@ impl<'a> Show<'a> {
             Cell::new("Start"),
             Cell::new("End"),
             Cell::new("Duration"),
-            Cell::new("R"),  // Reported
+            Cell::new("R"), // Reported
         ]
     }
 

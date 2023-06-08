@@ -60,8 +60,7 @@ mod tests {
         };
 
         let tasks = vec![task1, task2, task3];
-        let mut grouped_tasks = group_tasks_for_the_integration(&tasks);
-        grouped_tasks.sort();
+        let grouped_tasks = group_tasks_for_the_integration(&tasks);
 
         assert_eq!(grouped_tasks.len(), 2);
         assert_eq!(grouped_tasks[0].external_id, "1234".to_string());
