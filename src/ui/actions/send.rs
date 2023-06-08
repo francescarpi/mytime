@@ -37,7 +37,7 @@ impl Action for Send {
             }
         }
 
-        println!("\n{total_tasks_sent} tasks sent");
+        println!("📬 {total_tasks_sent} tasks sent\n");
 
         Show::new(db).today();
     }
