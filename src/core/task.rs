@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Task {
     pub id: i64,
     pub desc: String,

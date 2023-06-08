@@ -49,3 +49,39 @@ pub mod dates {
         DateTime::parse_from_rfc3339(date).unwrap().date_naive()
     }
 }
+
+pub mod grouper {
+    use crate::core::task::Task;
+    use crate::integrations::IntegrationTask;
+    use chrono::DateTime;
+    use std::collections::HashMap;
+
+    pub fn group_tasks_for_the_integration(tasks: &Vec<Task>) -> Vec<IntegrationTask> {
+        let mut group: HashMap<String, IntegrationTask> = HashMap::new();
+
+        for task in tasks {
+            let desc = &task.desc;
+            let start = DateTime::parse_from_rfc3339(&task.start)
+                .unwrap()
+                .format("%Y-%m-%d")
+                .to_string();
+            let external_id = task.external_id.as_ref().unwrap().to_owned();
+            let project = &task.project;
+
+            let key = format!("{}-{}-{}-{}", desc, start, external_id, project);
+
+            let grouped_task = group.entry(key).or_insert(IntegrationTask {
+                external_id,
+                duration: 0,
+                desc: desc.clone(),
+                start,
+                ids_used: Vec::new(),
+            });
+
+            grouped_task.duration += task.duration();
+            grouped_task.ids_used.push(task.id);
+        }
+
+        group.into_iter().map(|(_k, task)| task).collect()
+    }
+}

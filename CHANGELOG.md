@@ -11,7 +11,8 @@
 
 ### Added
 
-- Add a new table grouping tasks by project
+- Add a new table grouping tasks by project.
+- Tasks are grouped by date/desc/project when they are sent to the integration.
 
 ## [0.1.3] - 2023-06-04
 
