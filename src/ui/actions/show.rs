@@ -169,23 +169,21 @@ impl<'a> Show<'a> {
             *duration_proj += task.duration();
         }
 
-        for (desc, duration) in grouped_by_desc {
-            table_group_by_desc.add_row(vec![
-                Cell::new(desc),
-                Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
-            ]);
-        }
-
-        for (proj, duration) in grouped_by_proj {
-            table_group_by_proj.add_row(vec![
-                Cell::new(proj),
-                Cell::new(format_seconds(&duration)).set_alignment(CellAlignment::Right),
-            ]);
-        }
+        self.add_rows_in_summary_table(&mut table_group_by_desc, &grouped_by_desc);
+        self.add_rows_in_summary_table(&mut table_group_by_proj, &grouped_by_proj);
 
         container.add_row(vec![table_group_by_desc, table_group_by_proj]);
 
         println!("{container}");
+    }
+
+    fn add_rows_in_summary_table(&self, table: &mut Table, rows: &HashMap<&String, i64>) {
+        for (key, value) in rows {
+            table.add_row(vec![
+                Cell::new(key),
+                Cell::new(format_seconds(&value)).set_alignment(CellAlignment::Right),
+            ]);
+        }
     }
 
     pub fn working_time(&self, tasks: &Vec<Task>) -> i64 {
