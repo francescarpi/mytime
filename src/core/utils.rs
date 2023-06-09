@@ -65,7 +65,11 @@ pub mod grouper {
                 .unwrap()
                 .format("%Y-%m-%d")
                 .to_string();
-            let external_id = task.external_id.as_ref().unwrap().to_owned();
+            let external_id = task
+                .external_id
+                .as_ref()
+                .unwrap_or(&"".to_string())
+                .to_owned();
             let project = &task.project;
 
             let key = format!("{}-{}-{}-{}", desc, start, external_id, project);

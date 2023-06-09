@@ -59,21 +59,33 @@ mod tests {
             project: "Proj 1".to_string(),
         };
 
-        let tasks = vec![task1, task2, task3];
+        let task4 = Task {
+            id: 3,
+            desc: "Task 2".to_string(),
+            start: "2023-06-08T09:51:21.617214+00:00".to_string(),
+            end: Some("2023-06-08T10:57:40.751681+00:00".to_string()),
+            reported: false,
+            external_id: None,
+            project: "Proj 1".to_string(),
+        };
+
+        let tasks = vec![task1, task2, task3, task4];
         let grouped_tasks = group_tasks_for_the_integration(&tasks);
 
-        assert_eq!(grouped_tasks.len(), 2);
-        assert_eq!(grouped_tasks[0].external_id, "1234".to_string());
-        assert_eq!(grouped_tasks[0].duration, 7958);
-        assert_eq!(grouped_tasks[0].desc, "Task 1".to_string());
-        assert_eq!(grouped_tasks[0].start, "2023-06-08".to_string());
-        assert_eq!(grouped_tasks[0].ids_used, [1, 2]);
+        assert_eq!(grouped_tasks.len(), 3);
+        assert_eq!(grouped_tasks[0].external_id, "".to_string());
 
-        assert_eq!(grouped_tasks[1].external_id, "12345".to_string());
-        assert_eq!(grouped_tasks[1].duration, 3979);
-        assert_eq!(grouped_tasks[1].desc, "Task 2".to_string());
+        assert_eq!(grouped_tasks[1].external_id, "1234".to_string());
+        assert_eq!(grouped_tasks[1].duration, 7958);
+        assert_eq!(grouped_tasks[1].desc, "Task 1".to_string());
         assert_eq!(grouped_tasks[1].start, "2023-06-08".to_string());
-        assert_eq!(grouped_tasks[1].ids_used, [3]);
+        assert_eq!(grouped_tasks[1].ids_used, [1, 2]);
+
+        assert_eq!(grouped_tasks[2].external_id, "12345".to_string());
+        assert_eq!(grouped_tasks[2].duration, 3979);
+        assert_eq!(grouped_tasks[2].desc, "Task 2".to_string());
+        assert_eq!(grouped_tasks[2].start, "2023-06-08".to_string());
+        assert_eq!(grouped_tasks[2].ids_used, [3]);
 
     }
 }
