@@ -144,6 +144,7 @@ impl<'a> Show<'a> {
             Cell::new(""),
             Cell::new(format_seconds(&duration))
                 .set_alignment(CellAlignment::Right)
+                .fg(Color::Blue)
                 .add_attribute(Attribute::Bold),
         ]);
     }
