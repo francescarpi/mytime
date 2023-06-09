@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2023-06-09
+
 ### Changed
 
 - Display external ID in the log once a task has been sent
