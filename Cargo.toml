@@ -16,3 +16,4 @@ rusqlite = "0.29.0"
 rust-ini = "0.19.0"
 serde_json = "1.0.96"
 serde = { version = "1.0", features = ["derive"] }
+dialoguer = "0.10.4"
