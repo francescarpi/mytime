@@ -132,4 +132,6 @@ The binary file will be located in the `target` folder.
 
 ![Screenshot 1](./screenshots/cap1.png)
 
-![Screenshot 2](./screenshots/capture2.png)
+![Screenshot 2](./screenshots/cap2.png)
+
+![Screenshot 3](./screenshots/cap3.png)
