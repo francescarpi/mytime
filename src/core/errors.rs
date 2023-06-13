@@ -6,6 +6,7 @@ pub enum Error {
     ExistActiveTask,
     TaskCannotBeenReported(String),
     MissingIntegrationParams,
+    TodoDoesNotExist,
 }
 
 impl fmt::Display for Error {
@@ -13,8 +14,11 @@ impl fmt::Display for Error {
         match self {
             Error::TaskDoesNotExist => write!(f, "Task does not exist"),
             Error::ExistActiveTask => write!(f, "Exists an active task"),
-            Error::TaskCannotBeenReported(reason) => write!(f, "Task cannot been reported: {}", reason),
-            Error::MissingIntegrationParams => write!(f, "Missing integration configuration")
+            Error::TaskCannotBeenReported(reason) => {
+                write!(f, "Task cannot been reported: {}", reason)
+            }
+            Error::MissingIntegrationParams => write!(f, "Missing integration configuration"),
+            Error::TodoDoesNotExist => write!(f, "Todo does not exist"),
         }
     }
 }

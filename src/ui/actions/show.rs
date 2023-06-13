@@ -71,6 +71,7 @@ impl<'a> Show<'a> {
     fn print_tables(&self, tasks: &Vec<Task>, show_only_time: bool) {
         self.print_tasks_table(&tasks, show_only_time);
         self.print_summary_table(&tasks);
+        self.print_todo_table();
     }
 
     fn print_tasks_table(&self, tasks: &Vec<Task>, show_only_time: bool) {
@@ -147,6 +148,24 @@ impl<'a> Show<'a> {
                 .fg(Color::Blue)
                 .add_attribute(Attribute::Bold),
         ]);
+    }
+
+    fn print_todo_table(&self) {
+        println!("📋Todo");
+        let mut table = self.create_new_table(vec![
+            Cell::new("#").fg(Color::Green),
+            Cell::new("Project"),
+            Cell::new("Description"),
+        ]);
+        let todos = self.db.todo_list();
+        for todo in todos {
+            table.add_row(vec![
+                Cell::new(todo.id),
+                Cell::new(todo.project),
+                Cell::new(todo.desc),
+            ]);
+        }
+        println!("{table}");
     }
 
     pub fn print_summary_table(&self, tasks: &Vec<Task>) {
@@ -228,7 +247,7 @@ impl<'a> Show<'a> {
 impl Action for Show<'_> {
     const NAME: &'static str = "show";
 
-    fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let show = Show::new(db);
         if let Some(period) = sub_m.get_one::<String>("period") {
             match period.as_str() {

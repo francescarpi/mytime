@@ -1,5 +1,6 @@
 use crate::core::errors::Error;
 use crate::core::task::Task;
+use crate::core::todo::Todo;
 use chrono::NaiveDate;
 
 pub trait Db {
@@ -16,4 +17,9 @@ pub trait Db {
     fn reopen_id(&self, id: &i64) -> Result<(), Error>;
     fn report_task(&self, id: &i64) -> Result<(), Error>;
     fn unreported_tasks(&self) -> Vec<Task>;
+
+    fn todo_list(&self) -> Vec<Todo>;
+    fn todo_add(&self, project: &String, desc: &String) -> Result<(), Error>;
+    fn todo_mark_as_done(&self, id: &i64) -> Result<(), Error>;
+    fn todo_detail(&self, id: &i64) -> Result<Todo, Error>;
 }

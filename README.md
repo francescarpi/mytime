@@ -70,6 +70,18 @@ To send unreported tasks to Redmine:
 mytime send
 ```
 
+To add an item into the TODO list:
+
+```bash
+mytime add_todo --project "FOO" --desc "Pending task 1"
+```
+
+Mark a TODO task as done:
+
+```bash
+mytime mark_todo --id 1
+```
+
 ## Database
 
 By default, the `sqlite3` database is created at `$HOME/.local/share/mytime`. You can change the default path through the config file.

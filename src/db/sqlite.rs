@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use crate::core::config::Config;
 use crate::core::errors::Error;
 use crate::core::task::Task;
+use crate::core::todo::Todo;
 use crate::db::traits::Db;
 use chrono::{NaiveDate, Utc};
 use rusqlite::{params, params_from_iter, Connection, Result, Row, Statement};
@@ -14,6 +15,55 @@ pub struct Sqlite {
 }
 
 impl Db for Sqlite {
+    fn todo_detail(&self, id: &i64) -> std::result::Result<Todo, Error> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT * FROM todo WHERE id = ?")
+            .unwrap();
+        match stmt.query_row(params![id], |row| self.row_to_todo(row)) {
+            Ok(task) => Ok(task),
+            Err(_) => Err(Error::TodoDoesNotExist),
+        }
+    }
+
+    fn todo_mark_as_done(&self, id: &i64) -> std::result::Result<(), Error> {
+        match self.todo_detail(&id) {
+            Ok(_todo) => {
+                self.conn
+                    .execute("DELETE FROM todo WHERE id = ?", params![id])
+                    .unwrap();
+                Ok(())
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    fn todo_add(&self, project: &String, desc: &String) -> std::result::Result<(), Error> {
+        let now = Utc::now().to_rfc3339();
+        self.conn
+            .execute(
+                "INSERT INTO todo (project, desc, created) VALUES (?, ?, ?)",
+                params![project, desc, now],
+            )
+            .unwrap();
+        Ok(())
+    }
+
+    fn todo_list(&self) -> Vec<Todo> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT * FROM todo ORDER BY created DESC")
+            .unwrap();
+
+        let rows = stmt.query_map((), |row| self.row_to_todo(row)).unwrap();
+
+        let mut todo: Vec<Todo> = Vec::new();
+        for row in rows {
+            todo.push(row.unwrap());
+        }
+        todo
+    }
+
     fn day_tasks(&self, day: &NaiveDate) -> Vec<Task> {
         let day = day.format("%Y-%m-%d").to_string();
         let mut stmt = self
@@ -197,6 +247,15 @@ impl Sqlite {
         })
     }
 
+    fn row_to_todo(&self, row: &Row) -> Result<Todo> {
+        Ok(Todo {
+            id: row.get(0)?,
+            project: row.get(1)?,
+            desc: row.get(2)?,
+            created: row.get(3)?,
+        })
+    }
+
     fn create_db_if_not_exist(app_share_path: &PathBuf) -> Connection {
         let db_path = app_share_path.join("mytime.db");
         let db_path = db_path.to_str().unwrap();
@@ -219,11 +278,21 @@ impl Sqlite {
                 )",
                 (),
             )
-            .expect("Table \"tasks\" couldn't been created");
+            .expect("Table 'tasks' couldn't been created");
             conn.execute("CREATE TABLE app (version TEXT NOT NULL)", ())
-                .expect("Table \"app\" couldn't been created");
+                .expect("Table 'app' couldn't been created");
             conn.execute("INSERT INTO app VALUES (?)", [VERSION])
                 .expect("The version had not been added");
+            conn.execute(
+                "CREATE TABLE todo (
+                    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                    project TEXT NOT NULL,
+                    desc    TEXT NOT NULL,
+                    created INTEGER NOT NULL
+                )",
+                (),
+            )
+            .expect("Table 'tasks' couldn't been created");
         }
 
         conn
@@ -260,6 +329,7 @@ impl Sqlite {
             ),
             ("0.1.3", None),
             ("0.1.4", None),
+            ("0.1.5", Some("CREATE TABLE todo (id INTEGER PRIMARY KEY AUTOINCREMENT, project TEXT NOT NULL, desc TEXT NOT NULL, created INTEGER NOT NULL)")),
         ];
 
         let mut stmt_db_version = conn.prepare("SELECT version FROM app").unwrap();

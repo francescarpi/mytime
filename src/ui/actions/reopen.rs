@@ -29,7 +29,7 @@ impl<'a> Reopen {
 impl Action for Reopen {
     const NAME: &'static str = "reopen";
 
-    fn perform<'a, 'b>(_config: &'b Config, db: &'b dyn Db, sub_m: &ArgMatches) {
+    fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
         Self::task(db, &id);
         Show::new(db).today();
