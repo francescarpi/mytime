@@ -10,8 +10,8 @@ use crate::core::config::Config;
 use crate::db::get_db;
 
 use crate::ui::actions::{
-    modify::Modify, reopen::Reopen, report::Report, send::Send, show::Show, start::Start,
-    stop::Stop,
+    add_todo::AddTodo, mark_todo::MarkTodo, modify::Modify, reopen::Reopen, report::Report,
+    send::Send, show::Show, start::Start, stop::Stop,
 };
 
 fn main() {
@@ -30,6 +30,8 @@ fn main() {
         .subcommand(Reopen::subcomand())
         .subcommand(Report::subcomand())
         .subcommand(Send::subcomand())
+        .subcommand(AddTodo::subcomand())
+        .subcommand(MarkTodo::subcomand())
         .get_matches();
 
     match matches.subcommand() {
@@ -40,6 +42,8 @@ fn main() {
         Some((Show::NAME, sub_m)) => Show::perform(&config, &db, &sub_m),
         Some((Report::NAME, sub_m)) => Report::perform(&config, &db, &sub_m),
         Some((Send::NAME, sub_m)) => Send::perform(&config, &db, &sub_m),
+        Some((AddTodo::NAME, sub_m)) => AddTodo::perform(&config, &db, &sub_m),
+        Some((MarkTodo::NAME, sub_m)) => MarkTodo::perform(&config, &db, &sub_m),
         _ => Show::new(&db).today(),
     }
 }

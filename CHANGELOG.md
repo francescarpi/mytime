@@ -5,6 +5,7 @@
 ### Added
 
 - Add confirmation before sending tasks to the integration.
+- Allow to manage a list of TODOs
 
 ## [0.1.4] - 2023-06-09
 
