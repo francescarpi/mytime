@@ -73,7 +73,7 @@ mytime send
 To add an item into the TODO list:
 
 ```bash
-mytime add_todo --project "FOO" --desc "Pending task 1"
+mytime add-todo --project "FOO" --desc "Pending task 1"
 ```
 
 Mark a TODO task as done:

@@ -9,7 +9,7 @@ use crate::ui::traits::Action;
 pub struct AddTodo {}
 
 impl Action for AddTodo {
-    const NAME: &'static str = "add_todo";
+    const NAME: &'static str = "add-todo";
 
     fn subcomand() -> clap::Command {
         Command::new(Self::NAME)
