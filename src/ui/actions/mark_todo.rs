@@ -9,7 +9,7 @@ use crate::ui::traits::Action;
 pub struct MarkTodo {}
 
 impl Action for MarkTodo {
-    const NAME: &'static str = "mark_todo";
+    const NAME: &'static str = "mark-todo";
 
     fn subcomand() -> clap::Command {
         Command::new(Self::NAME).about("Mark a TODO as done").arg(

@@ -6,6 +6,7 @@
 
 - Add confirmation before sending tasks to the integration.
 - Allow to manage a list of TODOs
+- Pass one TODO to a TASK
 
 ## [0.1.4] - 2023-06-09
 

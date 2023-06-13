@@ -79,7 +79,13 @@ mytime add_todo --project "FOO" --desc "Pending task 1"
 Mark a TODO task as done:
 
 ```bash
-mytime mark_todo --id 1
+mytime mark-todo --id 1
+```
+
+Create a task from a TODO:
+
+```bash
+mytime todo-to-task --id 1
 ```
 
 ## Database

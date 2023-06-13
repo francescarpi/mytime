@@ -11,7 +11,7 @@ use crate::db::get_db;
 
 use crate::ui::actions::{
     add_todo::AddTodo, mark_todo::MarkTodo, modify::Modify, reopen::Reopen, report::Report,
-    send::Send, show::Show, start::Start, stop::Stop,
+    send::Send, show::Show, start::Start, stop::Stop, todo_to_task::TodoToTask,
 };
 
 fn main() {
@@ -32,6 +32,7 @@ fn main() {
         .subcommand(Send::subcomand())
         .subcommand(AddTodo::subcomand())
         .subcommand(MarkTodo::subcomand())
+        .subcommand(TodoToTask::subcomand())
         .get_matches();
 
     match matches.subcommand() {
@@ -44,6 +45,7 @@ fn main() {
         Some((Send::NAME, sub_m)) => Send::perform(&config, &db, &sub_m),
         Some((AddTodo::NAME, sub_m)) => AddTodo::perform(&config, &db, &sub_m),
         Some((MarkTodo::NAME, sub_m)) => MarkTodo::perform(&config, &db, &sub_m),
+        Some((TodoToTask::NAME, sub_m)) => TodoToTask::perform(&config, &db, &sub_m),
         _ => Show::new(&db).today(),
     }
 }
