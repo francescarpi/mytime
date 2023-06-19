@@ -6,9 +6,9 @@ use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
 use crate::ui::traits::Action;
 
-pub struct Modify {}
+pub struct Edit {}
 
-impl<'a> Modify {
+impl<'a> Edit {
     fn desc(db: &'a dyn Db, id: &i64, desc: &String) {
         match db.change_task_desc(id, desc) {
             Ok(_) => success("Task updated!".to_string()),
@@ -31,8 +31,8 @@ impl<'a> Modify {
     }
 }
 
-impl Action for Modify {
-    const NAME: &'static str = "modify";
+impl Action for Edit {
+    const NAME: &'static str = "edit";
 
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
@@ -54,7 +54,7 @@ impl Action for Modify {
 
     fn subcomand() -> Command {
         Command::new(Self::NAME)
-            .about("Modify a task")
+            .about("Edit a task")
             .arg(
                 Arg::new("id")
                     .short('i')
@@ -88,7 +88,7 @@ impl Action for Modify {
                     .conflicts_with_all(&["project", "desc"]),
             )
             .group(
-                ArgGroup::new("modify")
+                ArgGroup::new("edit")
                     .args(["desc", "external_id", "project"])
                     .required(true),
             )

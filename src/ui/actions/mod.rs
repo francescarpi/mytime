@@ -1,4 +1,4 @@
-pub mod modify;
+pub mod edit;
 pub mod reopen;
 pub mod show;
 pub mod start;

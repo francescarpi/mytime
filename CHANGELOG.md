@@ -8,6 +8,10 @@
 - Allow to manage a list of TODOs
 - Pass one TODO to a TASK
 
+### Changed
+
+- Action "modify" renamed to "edit".
+
 ## [0.1.4] - 2023-06-09
 
 ### Changed

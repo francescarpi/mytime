@@ -10,7 +10,7 @@ use crate::core::config::Config;
 use crate::db::get_db;
 
 use crate::ui::actions::{
-    add_todo::AddTodo, mark_todo::MarkTodo, modify::Modify, reopen::Reopen, report::Report,
+    add_todo::AddTodo, mark_todo::MarkTodo, edit::Edit, reopen::Reopen, report::Report,
     send::Send, show::Show, start::Start, stop::Stop, todo_to_task::TodoToTask,
 };
 
@@ -26,7 +26,7 @@ fn main() {
         .subcommand(Start::subcomand())
         .subcommand(Stop::subcomand())
         .subcommand(Show::subcomand())
-        .subcommand(Modify::subcomand())
+        .subcommand(Edit::subcomand())
         .subcommand(Reopen::subcomand())
         .subcommand(Report::subcomand())
         .subcommand(Send::subcomand())
@@ -38,7 +38,7 @@ fn main() {
     match matches.subcommand() {
         Some((Start::NAME, sub_m)) => Start::perform(&config, &db, &sub_m),
         Some((Stop::NAME, sub_m)) => Stop::perform(&config, &db, &sub_m),
-        Some((Modify::NAME, sub_m)) => Modify::perform(&config, &db, &sub_m),
+        Some((Edit::NAME, sub_m)) => Edit::perform(&config, &db, &sub_m),
         Some((Reopen::NAME, sub_m)) => Reopen::perform(&config, &db, &sub_m),
         Some((Show::NAME, sub_m)) => Show::perform(&config, &db, &sub_m),
         Some((Report::NAME, sub_m)) => Report::perform(&config, &db, &sub_m),

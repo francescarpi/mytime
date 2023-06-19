@@ -44,12 +44,12 @@ To stop the currently active task:
 mytime stop
 ```
 
-To modify a task:
+To edit a task:
 
 ```bash
-mytime modify --id 14 --desc "New description"
-mytime modify --id 14 --external_id "12345"
-mytime modify --id 14 --project "Project 2"
+mytime edit --id 14 --desc "New description"
+mytime edit --id 14 --external_id "12345"
+mytime edit --id 14 --project "Project 2"
 ```
 
 To reopen a closed task:
