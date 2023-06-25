@@ -1,3 +1,4 @@
+use chrono::NaiveTime;
 use clap::{Arg, ArgGroup, ArgMatches, Command};
 
 use crate::core::config::Config;
@@ -10,24 +11,30 @@ pub struct Edit {}
 
 impl<'a> Edit {
     fn desc(db: &'a dyn Db, id: &i64, desc: &String) {
-        match db.change_task_desc(id, desc) {
-            Ok(_) => success("Task updated!".to_string()),
-            Err(_) => error("There is not any task with this ID!".to_string()),
-        };
+        db.change_task_desc(id, desc).unwrap();
     }
 
     fn external_id(db: &'a dyn Db, id: &i64, external_id: &String) {
-        match db.change_task_external_id(id, external_id) {
-            Ok(_) => success("Task updated!".to_string()),
-            Err(_) => error("There is not any task with this ID!".to_string()),
-        };
+        db.change_task_external_id(id, external_id).unwrap();
     }
 
-    fn project(db: &'a dyn Db, id: &i64, external_id: &String) {
-        match db.change_task_project(id, external_id) {
-            Ok(_) => success("Task updated!".to_string()),
-            Err(_) => error("There is not any task with this ID!".to_string()),
-        };
+    fn project(db: &'a dyn Db, id: &i64, project: &String) {
+        db.change_task_project(id, project).unwrap();
+    }
+
+    fn start_time(db: &'a dyn Db, id: &i64, start_time: &NaiveTime) {
+        db.change_task_start_time(id, start_time).unwrap();
+    }
+
+    fn end_time(db: &'a dyn Db, id: &i64, end_time: &NaiveTime) {
+        db.change_task_end_time(id, end_time).unwrap();
+    }
+
+    fn validate_time(time: &str) -> Result<NaiveTime, String> {
+        match NaiveTime::parse_from_str(time, "%H:%M") {
+            Ok(time) => Ok(time),
+            Err(_) => Err(String::from("Invalid time")),
+        }
     }
 }
 
@@ -36,6 +43,20 @@ impl Action for Edit {
 
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
         let id = sub_m.get_one::<i64>("id").unwrap();
+
+        match db.task(&id) {
+            Ok(task) => match task.reported {
+                true => {
+                    error("The task was reported. It cannot be editted".to_string());
+                    return;
+                }
+                false => (),
+            },
+            Err(_) => {
+                error("The task does not exists".to_string());
+                return;
+            },
+        }
 
         if let Some(desc) = sub_m.get_one::<String>("desc") {
             Self::desc(db, &id, &desc);
@@ -49,6 +70,15 @@ impl Action for Edit {
             Self::project(db, &id, &project);
         }
 
+        if let Some(start_time) = sub_m.get_one::<NaiveTime>("start_time") {
+            Self::start_time(db, &id, &start_time);
+        }
+
+        if let Some(end_time) = sub_m.get_one::<NaiveTime>("end_time") {
+            Self::end_time(db, &id, &end_time);
+        }
+
+        success("Task updated!".to_string());
         Show::new(db).one_task(db.task(&id).unwrap());
     }
 
@@ -69,7 +99,7 @@ impl Action for Edit {
                     .long("desc")
                     .help("Description")
                     .value_parser(clap::value_parser!(String))
-                    .conflicts_with_all(&["project", "external_id"]),
+                    .conflicts_with_all(&["project", "external_id", "start_time", "end_time"]),
             )
             .arg(
                 Arg::new("project")
@@ -77,7 +107,7 @@ impl Action for Edit {
                     .long("project")
                     .help("Project name")
                     .value_parser(clap::value_parser!(String))
-                    .conflicts_with_all(&["desc", "external_id"]),
+                    .conflicts_with_all(&["desc", "external_id", "start_time", "end_time"]),
             )
             .arg(
                 Arg::new("external_id")
@@ -85,11 +115,27 @@ impl Action for Edit {
                     .long("external_id")
                     .help("External ID")
                     .value_parser(clap::value_parser!(String))
-                    .conflicts_with_all(&["project", "desc"]),
+                    .conflicts_with_all(&["project", "desc", "start_time", "end_time"]),
+            )
+            .arg(
+                Arg::new("start_time")
+                    .short('s')
+                    .long("start_time")
+                    .help("Format: HH:MM")
+                    .value_parser(Self::validate_time)
+                    .conflicts_with_all(&["project", "desc", "external_id", "end_time"]),
+            )
+            .arg(
+                Arg::new("end_time")
+                    .short('n')
+                    .long("end_time")
+                    .help("Format: HH:MM")
+                    .value_parser(Self::validate_time)
+                    .conflicts_with_all(&["project", "desc", "external_id", "start_time"]),
             )
             .group(
                 ArgGroup::new("edit")
-                    .args(["desc", "external_id", "project"])
+                    .args(["desc", "external_id", "project", "start_time", "end_time"])
                     .required(true),
             )
     }

@@ -50,6 +50,8 @@ To edit a task:
 mytime edit --id 14 --desc "New description"
 mytime edit --id 14 --external_id "12345"
 mytime edit --id 14 --project "Project 2"
+mytime edit --id 14 --start_time 8:50
+mytime edit --id 14 --end_time 9:20
 ```
 
 To reopen a closed task:

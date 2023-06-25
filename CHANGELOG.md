@@ -7,6 +7,7 @@
 - Add confirmation before sending tasks to the integration.
 - Allow to manage a list of TODOs
 - Pass one TODO to a TASK
+- Task start and end time edition
 
 ### Changed
 

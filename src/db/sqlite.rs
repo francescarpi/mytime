@@ -5,8 +5,9 @@ use crate::core::config::Config;
 use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::core::todo::Todo;
+use crate::core::utils::dates::update_time;
 use crate::db::traits::Db;
-use chrono::{NaiveDate, Utc};
+use chrono::{NaiveDate, NaiveTime, Utc};
 use rusqlite::{params, params_from_iter, Connection, Result, Row, Statement};
 
 #[derive(Debug)]
@@ -186,6 +187,39 @@ impl Db for Sqlite {
                     .execute(
                         "UPDATE tasks SET external_id = ? WHERE id = ?",
                         [external_id, &id.to_string()],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist),
+        }
+    }
+
+    fn change_task_start_time(&self, id: &i64, start_time: &NaiveTime) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(task) => {
+                let new_datetime = update_time(&task.start, start_time);
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET start = ? WHERE id = ?",
+                        params![new_datetime, &id.to_string()],
+                    )
+                    .unwrap();
+                Ok(())
+            }
+            Err(_) => Err(Error::TaskDoesNotExist),
+        }
+    }
+
+    fn change_task_end_time(&self, id: &i64, end_time: &NaiveTime) -> Result<(), Error> {
+        match self.task(id) {
+            Ok(task) => {
+                let end_datetime = task.end.expect("Task has not end time");
+                let new_datetime = update_time(&end_datetime, end_time);
+                self.conn
+                    .execute(
+                        "UPDATE tasks SET end = ? WHERE id = ?",
+                        params![new_datetime, &id.to_string()],
                     )
                     .unwrap();
                 Ok(())

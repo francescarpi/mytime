@@ -43,10 +43,33 @@ pub mod display {
 }
 
 pub mod dates {
-    use chrono::{DateTime, NaiveDate};
+    use chrono::{DateTime, Local, NaiveDate, NaiveTime, Utc, Timelike};
 
     pub fn to_naive(date: &String) -> NaiveDate {
         DateTime::parse_from_rfc3339(date).unwrap().date_naive()
+    }
+
+    pub fn to_local(date_time: &String) -> DateTime<Local> {
+        DateTime::parse_from_rfc3339(&date_time)
+            .unwrap()
+            .with_timezone(&Local)
+    }
+
+    pub fn to_utc(date_time: &String) -> DateTime<Utc> {
+        DateTime::parse_from_rfc3339(&date_time)
+            .unwrap()
+            .with_timezone(&Utc)
+    }
+
+    pub fn update_time(datetime: &String, new_time: &NaiveTime) -> String {
+        let utc_datetime = to_utc(&datetime);
+        utc_datetime
+            .date_naive()
+            .and_hms_opt(new_time.hour(), new_time.minute(), 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .to_rfc3339()
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::core::errors::Error;
 use crate::core::task::Task;
 use crate::core::todo::Todo;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime};
 
 pub trait Db {
     fn day_tasks(&self, day: &NaiveDate) -> Vec<Task>;
@@ -14,6 +14,8 @@ pub trait Db {
     fn change_task_desc(&self, id: &i64, desc: &String) -> Result<(), Error>;
     fn change_task_external_id(&self, id: &i64, external_id: &String) -> Result<(), Error>;
     fn change_task_project(&self, id: &i64, project: &String) -> Result<(), Error>;
+    fn change_task_start_time(&self, id: &i64, start_time: &NaiveTime) -> Result<(), Error>;
+    fn change_task_end_time(&self, id: &i64, end_time: &NaiveTime) -> Result<(), Error>;
     fn reopen_id(&self, id: &i64) -> Result<(), Error>;
     fn report_task(&self, id: &i64) -> Result<(), Error>;
     fn unreported_tasks(&self) -> Vec<Task>;
