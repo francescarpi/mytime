@@ -7,6 +7,7 @@ pub enum Error {
     TaskCannotBeenReported(String),
     MissingIntegrationParams,
     TodoDoesNotExist,
+    TaskDoesNotHaveEndDate,
 }
 
 impl fmt::Display for Error {
@@ -19,6 +20,7 @@ impl fmt::Display for Error {
             }
             Error::MissingIntegrationParams => write!(f, "Missing integration configuration"),
             Error::TodoDoesNotExist => write!(f, "Todo does not exist"),
+            Error::TaskDoesNotHaveEndDate => write!(f, "Task does not have end date"),
         }
     }
 }

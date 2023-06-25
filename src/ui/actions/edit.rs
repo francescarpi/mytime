@@ -2,6 +2,7 @@ use chrono::NaiveTime;
 use clap::{Arg, ArgGroup, ArgMatches, Command};
 
 use crate::core::config::Config;
+use crate::core::errors::Error;
 use crate::core::utils::display::{error, success};
 use crate::db::traits::Db;
 use crate::ui::actions::show::Show;
@@ -26,8 +27,8 @@ impl<'a> Edit {
         db.change_task_start_time(id, start_time).unwrap();
     }
 
-    fn end_time(db: &'a dyn Db, id: &i64, end_time: &NaiveTime) {
-        db.change_task_end_time(id, end_time).unwrap();
+    fn end_time(db: &'a dyn Db, id: &i64, end_time: &NaiveTime) -> Result<(), Error> {
+        db.change_task_end_time(id, end_time)
     }
 
     fn validate_time(time: &str) -> Result<NaiveTime, String> {
@@ -55,7 +56,7 @@ impl Action for Edit {
             Err(_) => {
                 error("The task does not exists".to_string());
                 return;
-            },
+            }
         }
 
         if let Some(desc) = sub_m.get_one::<String>("desc") {
@@ -75,7 +76,8 @@ impl Action for Edit {
         }
 
         if let Some(end_time) = sub_m.get_one::<NaiveTime>("end_time") {
-            Self::end_time(db, &id, &end_time);
+            Self::end_time(db, &id, &end_time)
+                .unwrap_or(error("Task does not have end time".to_string()));
         }
 
         success("Task updated!".to_string());

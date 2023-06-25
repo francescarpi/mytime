@@ -213,17 +213,19 @@ impl Db for Sqlite {
 
     fn change_task_end_time(&self, id: &i64, end_time: &NaiveTime) -> Result<(), Error> {
         match self.task(id) {
-            Ok(task) => {
-                let end_datetime = task.end.expect("Task has not end time");
-                let new_datetime = update_time(&end_datetime, end_time);
-                self.conn
-                    .execute(
-                        "UPDATE tasks SET end = ? WHERE id = ?",
-                        params![new_datetime, &id.to_string()],
-                    )
-                    .unwrap();
-                Ok(())
-            }
+            Ok(task) => match task.end {
+                Some(end_datetime) => {
+                    let new_datetime = update_time(&end_datetime, end_time);
+                    self.conn
+                        .execute(
+                            "UPDATE tasks SET end = ? WHERE id = ?",
+                            params![new_datetime, &id.to_string()],
+                        )
+                        .unwrap();
+                    Ok(())
+                }
+                None => Err(Error::TaskDoesNotHaveEndDate),
+            },
             Err(_) => Err(Error::TaskDoesNotExist),
         }
     }
