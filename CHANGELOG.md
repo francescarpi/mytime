@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.5] - 2023-07-01
+
 ### Added
 
 - Add confirmation before sending tasks to the integration.
