@@ -6,22 +6,30 @@ on: [push]
 name: Tests
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target:
-          - x86_64-unknown-linux-gnu
+        os: [macOs-latest, windows-2019, ubuntu-latest]
+    name: test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: test
-          args: --target=${{ matrix.target }}
+  # build:
+  #   name: Build
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       target:
+  #         - x86_64-unknown-linux-gnu
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         target: ${{ matrix.target }}
+  #         override: true
+  #     - uses: actions-rs/cargo@v1
+  #       with:
+  #         use-cross: true
+  #         command: test
+  #         args: --target=${{ matrix.target }}
