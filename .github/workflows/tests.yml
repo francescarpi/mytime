@@ -19,9 +19,14 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          # components: clippy
           profile: minimal
           override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          # args: --target=${{ matrix.target }}
 
   # build:
   #   name: Build
