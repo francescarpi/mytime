@@ -10,34 +10,22 @@ pub struct Reopen {}
 
 impl<'a> Reopen {
     fn reopen_with_id(db: &'a dyn Db, id: &i64) {
-        match db.active_task() {
-            Ok(task) => error(format!(
-                "There is an active task (task {}). It's not possible to open another one.",
-                task.id
-            )),
-            Err(_) => match db.task(id) {
-                Ok(task) => {
-                    db.reopen_id(&task.id).unwrap();
-                    success("Task opened again!".to_string());
-                }
-                Err(_) => error(format!("The task {} does not exists", id)),
-            },
+        match db.task(id) {
+            Ok(task) => {
+                db.reopen_id(&task.id).unwrap();
+                success("Task opened again!".to_string());
+            }
+            Err(_) => error(format!("The task {} does not exists", id)),
         };
     }
 
     fn reopen_last(db: &'a dyn Db) {
-        match db.active_task() {
-            Ok(task) => error(format!(
-                "There is an active task (task {}). It's not possible to open another one.",
-                task.id
-            )),
-            Err(_) => match db.last_task() {
-                Ok(task) => {
-                    db.reopen_id(&task.id).unwrap();
-                    success("Task opened again!".to_string());
-                }
-                Err(_) => error(format!("There are not tasks")),
-            },
+        match db.last_task() {
+            Ok(task) => {
+                db.reopen_id(&task.id).unwrap();
+                success("Task opened again!".to_string());
+            }
+            Err(_) => error(format!("There are not tasks")),
         };
     }
 }
@@ -46,10 +34,17 @@ impl Action for Reopen {
     const NAME: &'static str = "reopen";
 
     fn perform<'a, 'b>(_config: &'a Config, db: &'b dyn Db, sub_m: &ArgMatches) {
-        match sub_m.get_one::<i64>("id") {
-            Some(id) => Self::reopen_with_id(db, &id),
-            None => Self::reopen_last(db),
-        }
+        match db.active_task() {
+            Ok(task) => error(format!(
+                "There is an active task (task {}). It's not possible to open another one.",
+                task.id
+            )),
+            Err(_) => match sub_m.get_one::<i64>("id") {
+                Some(id) => Self::reopen_with_id(db, &id),
+                None => Self::reopen_last(db),
+            },
+        };
+
         Show::new(db).today();
     }
 
