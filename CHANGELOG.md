@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Reopen action now allows reopen the last task
+
 ## [0.1.5] - 2023-07-01
 
 ### Added

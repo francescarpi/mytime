@@ -58,6 +58,7 @@ To reopen a closed task:
 
 ```bash
 mytime reopen --id 12
+mytime reopen --last
 ```
 
 To toggle the reported flag, indicating that the task has been reported to your own tracking tool, such as Redmine or Jira:

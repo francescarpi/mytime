@@ -113,6 +113,17 @@ impl Db for Sqlite {
         }
     }
 
+    fn last_task(&self) -> Result<Task, Error> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT * FROM tasks ORDER BY id DESC LIMIT 1")
+            .unwrap();
+        match stmt.query_row([], |row| self.row_to_task(row)) {
+            Ok(task) => Ok(task),
+            Err(_) => Err(Error::TaskDoesNotExist),
+        }
+    }
+
     fn stop_task(&self, id: &i64) -> Result<Task, Error> {
         match self.task(id) {
             Ok(task) => {
